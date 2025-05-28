@@ -7,11 +7,52 @@ import hemanth from "./images/hemanth.jpg";
 import Surayya from "./images/Surayya-A.jpg";
 import madhu from "./images/madhu anna.jpg";
 import nandhini from "./images/nandhini.jpg";
+
+// Carousel images - add these images to your src/images folder or update the imports accordingly
 import c1 from "./images/c1.JPG";
+import c2 from "./images/c2.JPG";
+import c3 from "./images/c3.JPG";
+import c4 from "./images/c4.JPG";
+import c5 from "./images/c5.JPG";
 
-const carouselImages = [c1, c1, c1, c1, c1, c1, c1, c1, c1];
+const carouselSlides = [
+  {
+    image: c1,
+    title: "Welcome to Fun Lab",
+    subtitle: "Computing for Secure and Intelligent Networks Lab — pushing the edge of technology to the future.",
+    buttonText: "Explore AI Research",
+    buttonAction: () => alert("Explore AI Research clicked!"),
+  },
+  {
+    image: c2,
+    title: "Cutting-edge Edge Computing",
+    subtitle: "Innovating microservice orchestration and containerization at the edge.",
+    buttonText: "Learn About Edge",
+    buttonAction: () => alert("Learn About Edge clicked!"),
+  },
+  {
+    image: c3,
+    title: "Vehicular Networks",
+    subtitle: "Developing next-gen solutions for vehicular fog computing and networking.",
+    buttonText: "See Projects",
+    buttonAction: () => alert("See Projects clicked!"),
+  },
+  {
+    image: c4,
+    title: "AI at the Edge",
+    subtitle: "Integrating artificial intelligence models directly into edge devices.",
+    buttonText: "Discover AI",
+    buttonAction: () => alert("Discover AI clicked!"),
+  },
+  {
+    image: c5,
+    title: "Join Our Team",
+    subtitle: "Be part of a dynamic research group driving future tech innovations.",
+    buttonText: "Meet the Team",
+    buttonAction: () => alert("Meet the Team clicked!"),
+  },
+];
 
-// Publication data per professor keyed by their name
 const professorPublications = {
   "Dr. Muzakkir Hussain": {
     Journals: (
@@ -133,7 +174,6 @@ const professorPublications = {
   }
 };
 
-// Helper component to render dynamic publications
 function PublicationContent({ content }) {
   return (
     <div className="prose prose-sm prose-gray max-h-[70vh] overflow-auto">
@@ -151,7 +191,7 @@ export default function App() {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) =>
-        prev === carouselImages.length - 1 ? 0 : prev + 1
+        prev === carouselSlides.length - 1 ? 0 : prev + 1
       );
     }, 5000);
     return () => clearInterval(timer);
@@ -159,10 +199,7 @@ export default function App() {
 
   useEffect(() => {
     function handleClickOutside(event) {
-      if (
-        dialogRef.current &&
-        !dialogRef.current.contains(event.target)
-      ) {
+      if (dialogRef.current && !dialogRef.current.contains(event.target)) {
         setOpenDialogIndex(null);
         setActivePubSection("Journals"); // reset tab on close
       }
@@ -222,14 +259,17 @@ export default function App() {
     "Dr. Muzakkir Hussain",
     "Dr. Firoj Gazi",
     "Dr. Aswani Devi",
-    "Dr. Mohammad Abdussami"
+    "Dr. Mohammad Abdussami",
   ]);
 
   const goToSlide = (index) => setCurrentSlide(index);
   const nextSlide = () =>
-    setCurrentSlide((prev) => (prev === carouselImages.length - 1 ? 0 : prev + 1));
+    setCurrentSlide((prev) => (prev === carouselSlides.length - 1 ? 0 : prev + 1));
   const prevSlide = () =>
-    setCurrentSlide((prev) => (prev === 0 ? carouselImages.length - 1 : prev - 1));
+    setCurrentSlide((prev) => (prev === 0 ? carouselSlides.length - 1 : prev - 1));
+
+  const currentProfessor = openDialogIndex !== null ? teamMembers[openDialogIndex].name : null;
+  const currentPublications = currentProfessor ? professorPublications[currentProfessor] || {} : {};
 
   return (
     <div className="min-h-screen bg-black text-white font-sans flex flex-col overflow-x-hidden relative">
@@ -260,30 +300,37 @@ export default function App() {
 
       {/* Carousel Section */}
       <section className="relative h-[50vh] w-full overflow-hidden bg-black rounded-lg mx-auto max-w-7xl mt-8 shadow-lg">
-        {carouselImages.map((img, i) => (
-          <img
+        {carouselSlides.map(({ image, title, subtitle, buttonText, buttonAction }, i) => (
+          <div
             key={i}
-            src={typeof img === "string" ? img : img}
-            alt={`Slide ${i + 1}`}
-            className={`absolute top-0 left-1/2 w-full max-w-none max-h-[50vh] -translate-x-1/2 object-cover transition-opacity duration-1000 ease-in-out rounded-lg ${
+            className={`absolute top-0 left-1/2 w-full max-w-none max-h-[50vh] -translate-x-1/2 transition-opacity duration-1000 ease-in-out rounded-lg ${
               i === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
             }`}
-            loading="lazy"
-          />
+          >
+            <img
+              src={image}
+              alt={`Slide ${i + 1}`}
+              className="w-full max-h-[50vh] object-cover rounded-lg"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex flex-col justify-center items-center text-center px-6 sm:px-12">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white drop-shadow-lg mb-3">
+                {title}
+              </h2>
+              <p className="max-w-2xl text-lg sm:text-xl text-gray-300 drop-shadow-md mb-5">
+                {subtitle}
+              </p>
+              {buttonText && (
+                <button
+                  onClick={buttonAction}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded shadow"
+                >
+                  {buttonText}
+                </button>
+              )}
+            </div>
+          </div>
         ))}
-
-        {/* Overlay for subtle darkening */}
-        <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg pointer-events-none"></div>
-
-        {/* Text overlay on carousel */}
-        <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-6 sm:px-12 z-20 pointer-events-none">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white drop-shadow-lg mb-3">
-            Welcome to Fun Lab
-          </h2>
-          <p className="max-w-2xl text-lg sm:text-xl text-gray-300 drop-shadow-md">
-            Computing for Secure and Intelligent Networks Lab — pushing the edge of technology to the future.
-          </p>
-        </div>
 
         {/* Controls */}
         <button
@@ -303,7 +350,7 @@ export default function App() {
 
         {/* Dots */}
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-3 z-30">
-          {carouselImages.map((_, i) => (
+          {carouselSlides.map((_, i) => (
             <button
               key={i}
               onClick={() => goToSlide(i)}
