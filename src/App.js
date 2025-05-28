@@ -9,9 +9,7 @@ import madhu from "./images/madhu anna.jpg";
 import nandhini from "./images/nandhini.jpg";
 import c1 from "./images/c1.JPG";
 
-const carouselImages = [
-  c1, c1, c1, c1, c1, c1, c1, c1, c1,
-];
+const carouselImages = [c1, c1, c1, c1, c1, c1, c1, c1, c1];
 
 // Publication data per professor keyed by their name
 const professorPublications = {
@@ -232,11 +230,6 @@ export default function App() {
     setCurrentSlide((prev) => (prev === carouselImages.length - 1 ? 0 : prev + 1));
   const prevSlide = () =>
     setCurrentSlide((prev) => (prev === 0 ? carouselImages.length - 1 : prev - 1));
-
-  // Get the current selected professor name (if any)
-  const currentProfessor = openDialogIndex !== null ? teamMembers[openDialogIndex].name : null;
-  // Get publications content for current professor or empty
-  const currentPublications = currentProfessor ? professorPublications[currentProfessor] || {} : {};
 
   return (
     <div className="min-h-screen bg-black text-white font-sans flex flex-col overflow-x-hidden relative">
