@@ -21,7 +21,7 @@ import c3 from "./images/3.jpg";
 import c4 from "./images/4.jpg";
 import c5 from "./images/c1.JPG";
 import c6 from "./images/5.jpg";
-import c7 from "./images/6.jpg";
+//import c7 from "./images/6.jpg";
 
 // Publications Data
 const professorPublications = {
@@ -154,7 +154,7 @@ const carouselSlides = [
   { image: c4, title: "Techpreneur Event presentations 2024" },
   { image: c6, title: "Best Conference paper (2025) TU Darmstadt, Germany" },
   { image: c5, title: "EBC-3.0 Winner & ₹50k cash prize 2025" },
-  { image: c7, title: "MSME grant (2025) ₹10.3 lakhs" },
+ // { image: c7, title: "MSME grant (2025) ₹10.3 lakhs" },
 ];
 
 function PublicationContent({ content }) {
