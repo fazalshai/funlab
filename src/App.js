@@ -1,113 +1,64 @@
 import React, { useState, useEffect, useRef } from "react";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import Admin from "./Admin";
+
+// Team Images
 import MuzakkirImg from "./images/muzakkir.jpg";
-import Firojimg from "./images/firojgazi.jpeg";
-import ashwinimam from "./images/ashwini.jpg";
-import samisir from "./images/sami sir.jpg";
-import hemanth from "./images/hemanth.jpg";
-import Surayya from "./images/Surayya-A.jpg";
-import madhu from "./images/madhu anna.jpg";
-import nandhini from "./images/nandhini.jpg";
+import FirojImg from "./images/firojgazi.jpeg";
+import AshwiniImg from "./images/ashwini.jpg";
+import SamiSirImg from "./images/sami sir.jpg";
+import HemanthImg from "./images/hemanth.jpg";
+import SurayyaImg from "./images/Surayya-A.jpg";
+import MadhuImg from "./images/madhu.jpg";
+import NandhiniImg from "./images/nandhini.jpg";
+import sahadeb from "./images/sahadeb.png";
+import sulthan from "./images/sulthan.jpg";
 
-// Carousel images - add these images to your src/images folder or update the imports accordingly
-import c1 from "./images/c1.JPG";
-import c2 from "./images/c2.JPG";
-import c3 from "./images/c3.JPG";
-import c4 from "./images/c4.JPG";
-import c5 from "./images/c5.JPG";
+// Carousel Images
+import c1 from "./images/1.jpg";
+import c2 from "./images/2.jpg";
+import c3 from "./images/3.jpg";
+import c4 from "./images/4.jpg";
+import c5 from "./images/c1.JPG";
+import c6 from "./images/5.jpg";
+import c7 from "./images/6.jpg";
 
-const carouselSlides = [
-  {
-    image: c1,
-    title: "Welcome to Fun Lab",
-    subtitle: "Computing for Secure and Intelligent Networks Lab — pushing the edge of technology to the future.",
-    buttonText: "Explore AI Research",
-    buttonAction: () => alert("Explore AI Research clicked!"),
-  },
-  {
-    image: c2,
-    title: "Cutting-edge Edge Computing",
-    subtitle: "Innovating microservice orchestration and containerization at the edge.",
-    buttonText: "Learn About Edge",
-    buttonAction: () => alert("Learn About Edge clicked!"),
-  },
-  {
-    image: c3,
-    title: "Vehicular Networks",
-    subtitle: "Developing next-gen solutions for vehicular fog computing and networking.",
-    buttonText: "See Projects",
-    buttonAction: () => alert("See Projects clicked!"),
-  },
-  {
-    image: c4,
-    title: "AI at the Edge",
-    subtitle: "Integrating artificial intelligence models directly into edge devices.",
-    buttonText: "Discover AI",
-    buttonAction: () => alert("Discover AI clicked!"),
-  },
-  {
-    image: c5,
-    title: "Join Our Team",
-    subtitle: "Be part of a dynamic research group driving future tech innovations.",
-    buttonText: "Meet the Team",
-    buttonAction: () => alert("Meet the Team clicked!"),
-  },
-];
-
+// Publications Data
 const professorPublications = {
   "Dr. Muzakkir Hussain": {
     Journals: (
-      <>
-        <p><strong>M M Hussain</strong>, M. M. Sufyan Beg, “CODE-V: Multi-Hop Computation Offloading in Vehicular Fog Computing”, Future Generation Computer Systems, vol-116, pp. 86-102, Elsevier (I.F.- 7.15)</p>
-        <hr className="my-3" />
-        <p><strong>M M Hussain</strong>, Ahmad Taher Azar, Rafeeq Ahmed, Syed Umar Amin, Basit Qureshi, V. Dinesh Reddy, Irfan Alam, and Zafar Iqbal Khan. "SONG: A Multi-Objective Evolutionary Algorithm for Delay and Energy Aware Facility Location in Vehicular Fog Networks." Sensors 23, no. 2 (2023): 667 (I.F.-3.8)</p>
-        <hr className="my-3" />
-        <p>Vemula, Dinesh Reddy, Mahesh Kumar Morampudi, Sonam Maurya, Ashu Abdul, <strong>M M Hussain</strong>, and Ilaiah Kavati. "Enhanced resource provisioning and migrating virtual machines in heterogeneous cloud data center." Journal of Ambient Intelligence and Humanized Computing (2022): 1-12 (I.F.- 7.1).</p>
-        <hr className="my-3" />
-        <p><strong>M M Hussain</strong>, M. M. Sufyan Beg, M. S. Alam, “Fog Computing for Big Data Analytics in IoT Aided Smart Grid Networks”, Wireless Personal Communications, Springer, 2020 (I.F.- 2.2)</p>
-        <hr className="my-3" />
-        <p><strong>M M Hussain</strong>, M. S. Alam, M. M. Sufyan Beg, Nadeem Akhtar, “Towards Minimizing Delay and Energy Consumption in Vehicular Fog Computing (VFC)”, Journal of Intelligent and Fuzzy Systems, IOS Press, 2020 (I.F.- 1.85)</p>
-      </>
+      <ul className="list-disc pl-5 space-y-2">
+        <li>Optimal Deployment of Multiple IoT Applications on the Fog Computing</li>
+        <li>Resource management in fog computing: Overview and mathematical foundation</li>
+        <li>Evolutionary Algorithms for Edge Server Placement in Vehicular Edge Computing</li>
+        <li>Swarm Intelligence Theory and Applications in Fog Computing...</li>
+        <li>Application Aware Computation Offloading in Vehicular Fog Computing (VFC)</li>
+        <li>Facility Location in 6G-aware Vehicular Edge Computing</li>
+        <li>Enhanced resource provisioning and migrating virtual machines...</li>
+        <li>SONG: A Multi-Objective Evolutionary Algorithm...</li>
+        <li>Music Generation Using Deep Learning</li>
+        <li>Post-quantum distributed ledger technology...</li>
+        <li>Tiered sentence based topic model for multi-document summarization</li>
+      </ul>
     ),
-    Conferences: (
-      <>
-        <p>M M Hussain, Dinesh Reddy Vemula, Ashu Abdul, “A Novel Evolutionary Algorithm for Facility Location in Vehicular Fog Computing (VFC) Networks”, In 3rd International Conference on Machine Learning, Image Processing, Network Security and Data Sciences (MIND-2021), 11-12th December 2021, NIT Raipur, India</p>
-        <hr className="my-3" />
-        <p>M M Hussain, Mohammad Saad Alam, M.M. Sufyan Beg, “Fog Computing for Smart Grid transition-Requirements, Challenges and Status Quos”, In ACM BDCC,2019</p>
-      </>
-    ),
-    Patents: (
-      <>
-        <p>M. S. Alam, M M Hussain, M.M.Sufyan Beg, “BIG DATA TO (B2V) ELECTRIC, PLUGIN HYBRID ELECTRIC VEHICLE'S (xEVS) KNOWLEDGE BASE MANAGEMENT SYSTEM” Patent published in India.</p>
-      </>
-    ),
-    BookChapters: (
-      <>
-        <p>Dinesh Reddy Vemula, M M Hussain, “Nighttime Object Detection: A Night-Patrolling Mechanism Using Object Detection”, In Handbook of Research on AI Methods and Applications in Computer Engineering, IGI Global, 2023</p>
-      </>
-    )
   },
   "Dr. Firoj Gazi": {
     Journals: (
-      <>
-        <p>1. Towards smart city: sensing air quality in city based on opportunistic crowd-sensing J Dutta, C Chowdhury, S Roy, AI Middya, F Gazi - Proceedings of the 18th international conference on …, 2017</p>
-        <hr className="my-3" />
-        <p>2. Aquastream: Multihop multimedia streaming over acoustic channel in severely resource-constrained IoT networks A Mukherjee, F Gazi, N Pathak, S Misra - IEEE Internet of Things Journal, 2021</p>
-        <hr className="my-3" />
-        <p>3. ProStream: Programmable Underwater IoT Network for Multimedia Streaming F Gazi, N Ahmed, S Misra, MK Tiwari - IEEE Internet of Things Journal, 2022</p>
-        <hr className="my-3" />
-        <p>4. UnRest: Underwater reliable acoustic communication for multimedia streaming F Gazi, S Misra, N Ahmed, A Mukherjee, N Kumar - GLOBECOM 2020-2020 IEEE Global Communications …, 2020</p>
-        <hr className="my-3" />
-        <p>5. An IoT based intelligent traffic congestion control system for road crossings P Sadhukhan, F Gazi - … on Communication, Computing and Internet of Things …, 2018</p>
-        <hr className="my-3" />
-        <p>6. Measuring real-time road traffic queue length: a reliable approach using ultrasonic sensor A Mandal, P Sadhukhan, F Gaji, P Sharma - Proceedings of the 2nd International Conference on …, 2019</p>
-        <hr className="my-3" />
-        <p>7. Reinforcement learning-based MAC protocol for underwater multimedia sensor networks F Gazi, N Ahmed, S Misra, W Wei - ACM Transactions on Sensor Networks (TOSN), 2022</p>
-        <hr className="my-3" />
-        <p>8. RE-MAC: A Hybrid MAC Protocol for Underwater Multimedia Communication System F Gazi, N Ahmed, S Misra - IEEE Systems Journal, 2022</p>
-      </>
-    )
+      <ul className="list-disc pl-5 space-y-2">
+        <li>Resource management in fog computing...</li>
+        <li>Evolutionary Algorithms for Edge Server Placement in Vehicular Edge Computing</li>
+      </ul>
+    ),
+    Patents: (
+      <ul className="list-disc pl-5 space-y-2">
+        <li>System and method for air quality monitoring and alert generation using AI</li>
+        <li>Automated attendance registration system</li>
+        <li>Medical image analysis using federated edge learning</li>
+        <li>Underwater data transmission and object detection</li>
+      </ul>
+    ),
   },
-  "Dr. Aswani Devi": {
+   "Dr. Aswani Devi": {
     Journals: (
       <>
         <p>Blockchain-Based Resilient Pairing and Bonding of BLE Devices Using Deep Reinforcement Learning - Aguru Aswani Devi; Erukala Suresh Babu; Rajkumar Singh Rathore; Rutvij H. Jhaveri; Francesco Benedetto - IEEE Transactions on Consumer Electronics (2024)</p>
@@ -169,318 +120,181 @@ const professorPublications = {
         <p>Mohammad Abdussami et al., “Cryptanalysis and improvement of a blockchain based lightweight authentication and key agreement scheme for Internet of vehicles,” In 2023 International Conference on Communications, Computing, Cybersecurity, and Informatics (CCCI), IEEE, October 18-20, Chongqing, China, 2023, https://doi.org/10.1109/CCCI58712.2023.10290821 (IEEE Xplore)</p>
         <hr className="my-3" />
         <p>Mohammad Abdussami, Ruhul Amin, Satyanarayana Vollala, “Cryptanalysis on ESEAP: ECC based secure and efficient mutual authentication protocol using smart card,” In 2021 International Conference on Computing, Communication and Cyber-security (IC4S), Springer, October 30-31, Ghaziabad, Uttar Pradesh, India, 2021, https://doi.org/10.1007/978-981-19-1142-2.</p>
-      </>
+        </>
+    )
+  },
+
+  "Dr Sahadeb Shit": {
+    Awards: (
+      <ul className="list-disc pl-5 space-y-2">
+        <li>2023 – Best Paper Award – 3rd IEEE AISP</li>
+        <li>2024 – Best Paper Award – IEEE IICCCS</li>
+      </ul>
     )
   }
 };
 
+// (continued in part 2...)
+const teamMembers = [
+  { name: "Dr. Muzakkir Hussain", role: "Assistant Professor", department: "Department of Computer Science and Engineering", img: MuzakkirImg },
+  { name: "Dr. Firoj Gazi", role: "Assistant Professor", department: "Department of Computer Science and Engineering", img: FirojImg },
+  { name: "Dr. Aswani Devi", role: "Assistant Professor", department: "Department of Computer Science and Engineering", img: AshwiniImg },
+  { name: "Dr. Mohammad Abdussami", role: "Assistant Professor", department: "Department of Computer Science and Engineering", img: SamiSirImg },
+  { name: "Dr Sahadeb Shit", role: "Assistant Professor", department: "Department of Computer Science and Engineering", img: sahadeb },
+  { name: "Ms Surayya", role: "PhD Scholar", img: SurayyaImg },
+  { name: "Sripalli Hemanth Durga Kumar", role: "PhD Scholar", img: HemanthImg },
+  { name: "Madhu Bhushan", role: "PhD Scholar", img: MadhuImg },
+  { name: "Sultan Khan", role: "PhD Scholar", img: sulthan },
+];
+
+const carouselSlides = [
+  { image: c1, title: "Research day-4 winners 2024 (2 golds, 1 silver)" },
+  { image: c2, title: "Workshop on AI&ML, IoT 2024" },
+  { image: c3, title: "5th Research day winners 2025 (1 gold, 2 silver)" },
+  { image: c4, title: "Techpreneur Event presentations 2024" },
+  { image: c6, title: "Best Conference paper (2025) TU Darmstadt, Germany" },
+  { image: c5, title: "EBC-3.0 Winner & ₹50k cash prize 2025" },
+  { image: c7, title: "MSME grant (2025) ₹10.3 lakhs" },
+];
+
 function PublicationContent({ content }) {
-  return (
-    <div className="prose prose-sm prose-gray max-h-[70vh] overflow-auto">
-      {content}
-    </div>
-  );
+  return <div className="prose prose-sm prose-gray max-h-[70vh] overflow-auto">{content}</div>;
 }
 
-export default function App() {
+function MainApp() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [openDialogIndex, setOpenDialogIndex] = useState(null);
   const [activePubSection, setActivePubSection] = useState("Journals");
   const dialogRef = useRef(null);
 
+  const professorsWithPublications = new Set(Object.keys(professorPublications));
+
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentSlide((prev) =>
-        prev === carouselSlides.length - 1 ? 0 : prev + 1
-      );
+      setCurrentSlide((prev) => (prev + 1) % carouselSlides.length);
     }, 5000);
     return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
-    function handleClickOutside(event) {
+    const handleClickOutside = (event) => {
       if (dialogRef.current && !dialogRef.current.contains(event.target)) {
         setOpenDialogIndex(null);
-        setActivePubSection("Journals"); // reset tab on close
+        setActivePubSection("Journals");
       }
-    }
+    };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const teamMembers = [
-    {
-      name: "Dr. Muzakkir Hussain",
-      role: "Assistant Professor",
-      department: "Department of Computer Science and Engineering",
-      img: MuzakkirImg,
-    },
-    {
-      name: "Dr. Firoj Gazi",
-      role: "Assistant Professor",
-      department: "Department of Computer Science and Engineering",
-      img: Firojimg,
-    },
-    {
-      name: "Dr. Aswani Devi",
-      role: "Assistant Professor",
-      department: "Department of Computer Science and Engineering",
-      img: ashwinimam,
-    },
-    {
-      name: "Dr. Mohammad Abdussami",
-      role: "Assistant Professor",
-      department: "Department of Computer Science and Engineering",
-      img: samisir,
-    },
-    {
-      name: "Ms Surayya",
-      role: "PhD Scholar",
-      img: Surayya,
-    },
-    {
-      name: "Sripalli Hemanth Durga Kumar",
-      role: "PhD Scholar",
-      img: hemanth,
-    },
-    {
-      name: "Madhu Bhushan",
-      role: "PhD Scholar",
-      img: madhu,
-    },
-    {
-      name: "Nandhini",
-      role: "PhD Scholar",
-      img: nandhini,
-    },
-  ];
-
-  const professorsWithPublications = new Set([
-    "Dr. Muzakkir Hussain",
-    "Dr. Firoj Gazi",
-    "Dr. Aswani Devi",
-    "Dr. Mohammad Abdussami",
-  ]);
-
-  const goToSlide = (index) => setCurrentSlide(index);
-  const nextSlide = () =>
-    setCurrentSlide((prev) => (prev === carouselSlides.length - 1 ? 0 : prev + 1));
-  const prevSlide = () =>
-    setCurrentSlide((prev) => (prev === 0 ? carouselSlides.length - 1 : prev - 1));
-
-  const currentProfessor = openDialogIndex !== null ? teamMembers[openDialogIndex].name : null;
-  const currentPublications = currentProfessor ? professorPublications[currentProfessor] || {} : {};
-
   return (
-    <div className="min-h-screen bg-black text-white font-sans flex flex-col overflow-x-hidden relative">
-      {/* Hero Text Section */}
-      <section className="flex flex-col justify-center items-center text-center py-12 px-6 sm:px-10 bg-black">
-        <h1 className="text-4xl sm:text-5xl font-extrabold mb-3 tracking-tight leading-tight">
-          Fun Lab
-        </h1>
-        <p className="max-w-3xl text-base sm:text-lg text-gray-300">
-          Computing for Secure and Intelligent Networks Lab — pushing the edge of technology to the future.
-        </p>
+    <div className="min-h-screen bg-black text-white font-sans overflow-x-hidden relative">
+      {/* Header */}
+      <section className="flex flex-col justify-center items-center text-center py-12 px-6 bg-black">
+        <h1 className="text-4xl sm:text-5xl font-extrabold mb-3">Fun Lab</h1>
+        <p className="max-w-3xl text-base sm:text-lg text-gray-300">Computing for Secure and Intelligent Networks Lab — pushing the edge of technology to the future.</p>
       </section>
 
-      {/* Navigation Menu */}
+      {/* Navbar */}
       <nav className="bg-black py-4 text-center border-b border-gray-700 sticky top-0 z-40">
         <div className="flex justify-center gap-10 uppercase tracking-widest font-semibold text-sm sm:text-base">
           {["Our Team", "Research", "Publications", "Projects", "Contact Us"].map((item) => (
-            <a
-              key={item}
-              href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
-              className="hover:text-gray-400 transition-colors duration-300 cursor-pointer"
-            >
-              {item}
-            </a>
+            <a key={item} href={`#${item.toLowerCase().replace(/\s+/g, "-")}`} className="hover:text-gray-400">{item}</a>
           ))}
         </div>
       </nav>
 
-      {/* Carousel Section */}
-      <section className="relative h-[50vh] w-full overflow-hidden bg-black rounded-lg mx-auto max-w-7xl mt-8 shadow-lg">
-        {carouselSlides.map(({ image, title, subtitle, buttonText, buttonAction }, i) => (
-          <div
-            key={i}
-            className={`absolute top-0 left-1/2 w-full max-w-none max-h-[50vh] -translate-x-1/2 transition-opacity duration-1000 ease-in-out rounded-lg ${
-              i === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
-            }`}
-          >
-            <img
-              src={image}
-              alt={`Slide ${i + 1}`}
-              className="w-full max-h-[50vh] object-cover rounded-lg"
-              loading="lazy"
-            />
-            <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex flex-col justify-center items-center text-center px-6 sm:px-12">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white drop-shadow-lg mb-3">
-                {title}
-              </h2>
-              <p className="max-w-2xl text-lg sm:text-xl text-gray-300 drop-shadow-md mb-5">
-                {subtitle}
-              </p>
-              {buttonText && (
-                <button
-                  onClick={buttonAction}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded shadow"
-                >
-                  {buttonText}
-                </button>
-              )}
+      {/* Carousel */}
+      <section className="relative h-[60vh] w-full overflow-hidden bg-black rounded-lg mx-auto max-w-7xl mt-8 shadow-lg">
+        {carouselSlides.map(({ image, title }, i) => (
+          <div key={i} className={`absolute top-0 left-1/2 w-full max-w-none max-h-[60vh] -translate-x-1/2 transition-opacity duration-1000 ${i === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"}`}>
+            <img src={image} alt={`Slide ${i + 1}`} className="w-full max-h-[60vh] object-cover rounded-lg" />
+            <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-end items-center text-center px-6 pb-8">
+              <h2 className="text-3xl font-bold">{title}</h2>
             </div>
           </div>
         ))}
-
-        {/* Controls */}
-        <button
-          onClick={prevSlide}
-          className="absolute top-1/2 left-4 transform -translate-y-1/2 z-30 text-white text-4xl bg-black bg-opacity-30 rounded-full p-1 hover:bg-opacity-60 transition"
-          aria-label="Previous Slide"
-        >
-          ❮
-        </button>
-        <button
-          onClick={nextSlide}
-          className="absolute top-1/2 right-4 transform -translate-y-1/2 z-30 text-white text-4xl bg-black bg-opacity-30 rounded-full p-1 hover:bg-opacity-60 transition"
-          aria-label="Next Slide"
-        >
-          ❯
-        </button>
-
-        {/* Dots */}
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-3 z-30">
-          {carouselSlides.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => goToSlide(i)}
-              className={`w-4 h-4 rounded-full ${
-                i === currentSlide ? "bg-white" : "bg-white bg-opacity-40"
-              } transition`}
-              aria-label={`Go to slide ${i + 1}`}
-            />
-          ))}
-        </div>
+        <button onClick={() => setCurrentSlide((prev) => (prev - 1 + carouselSlides.length) % carouselSlides.length)} className="absolute top-1/2 left-4 transform -translate-y-1/2 text-white text-4xl bg-black bg-opacity-30 rounded-full p-1">❮</button>
+        <button onClick={() => setCurrentSlide((prev) => (prev + 1) % carouselSlides.length)} className="absolute top-1/2 right-4 transform -translate-y-1/2 text-white text-4xl bg-black bg-opacity-30 rounded-full p-1">❯</button>
       </section>
 
-      {/* Our Team Section with modal dialog */}
-      <section id="our-team" className="max-w-7xl mx-auto px-6 py-16 relative">
+      {/* Our Team */}
+      <section id="our-team" className="max-w-7xl mx-auto px-6 py-16">
         <h2 className="text-4xl font-bold border-b border-gray-700 pb-3 mb-10">Our Team</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12">
           {teamMembers.map(({ name, role, department, img }, index) => (
-            <div key={name} className="relative text-center">
+            <div key={name} className="text-center">
               <img
                 src={img}
                 alt={name}
-                className={`w-32 h-32 md:w-36 md:h-36 rounded-full object-cover mx-auto shadow-lg mb-4 cursor-pointer ${
-                  professorsWithPublications.has(name) ? "hover:brightness-125" : "opacity-70 cursor-default"
-                }`}
-                onClick={() => {
-                  if (professorsWithPublications.has(name)) {
-                    setOpenDialogIndex(index);
-                  }
-                }}
-                tabIndex={professorsWithPublications.has(name) ? 0 : -1}
-                onKeyDown={e => {
-                  if ((e.key === "Enter" || e.key === " ") && professorsWithPublications.has(name)) {
-                    setOpenDialogIndex(index);
-                  }
-                }}
+                className={`w-32 h-32 rounded-full object-cover mx-auto mb-4 cursor-pointer ${professorsWithPublications.has(name) ? "hover:brightness-125" : "opacity-70"}`}
+                onClick={() => professorsWithPublications.has(name) && setOpenDialogIndex(index)}
               />
               <h3 className="text-2xl font-semibold">{name}</h3>
-              <p className="text-gray-400 mt-2">
-                {role}
-                {department ? `, ${department}` : ""}
-              </p>
+              <p className="text-gray-400 mt-2">{role}{department ? `, ${department}` : ""}</p>
             </div>
           ))}
         </div>
 
-        {/* Modal dialog */}
+        {/* Modal */}
         {openDialogIndex !== null && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-start pt-20 z-50 overflow-auto px-4"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="modal-title"
-          >
-            <div
-              ref={dialogRef}
-              className="relative max-w-5xl w-full bg-white rounded-lg shadow-lg p-8 text-gray-900 flex flex-col md:flex-row"
-            >
-              <button
-                className="absolute top-4 right-4 text-gray-900 text-3xl font-bold hover:text-red-600 transition"
-                aria-label="Close publications dialog"
-                onClick={() => {
-                  setOpenDialogIndex(null);
-                  setActivePubSection("Journals");
-                }}
-              >
-                &times;
-              </button>
-
-              {/* Side nav */}
-              <nav className="w-full md:w-48 mb-6 md:mb-0 md:mr-8 border-b md:border-b-0 md:border-r border-gray-300 text-gray-700">
-                {Object.keys(professorPublications[teamMembers[openDialogIndex].name]).map((section) => (
-                  <button
-                    key={section}
-                    className={`block w-full text-left py-3 px-4 hover:bg-gray-200 focus:bg-gray-200 transition ${
-                      activePubSection === section ? "font-bold bg-gray-200" : ""
-                    }`}
-                    onClick={() => setActivePubSection(section)}
-                  >
-                    {section.replace(/([A-Z])/g, " $1").trim()}
-                  </button>
-                ))}
+          <div className="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-start pt-20 z-50 overflow-auto px-4">
+            <div ref={dialogRef} className="relative max-w-5xl w-full bg-white text-black rounded-lg shadow-lg p-8 flex flex-col md:flex-row">
+              <button className="absolute top-4 right-4 text-3xl font-bold" onClick={() => { setOpenDialogIndex(null); setActivePubSection("Journals"); }}>&times;</button>
+              <nav className="w-full md:w-48 mb-6 md:mb-0 md:mr-8 border-b md:border-b-0 md:border-r border-gray-300">
+                {professorPublications[teamMembers[openDialogIndex].name] &&
+                  Object.keys(professorPublications[teamMembers[openDialogIndex].name]).map((section) => (
+                    <button key={section} className={`block w-full text-left py-3 px-4 hover:bg-gray-200 ${activePubSection === section ? "font-bold bg-gray-200" : ""}`} onClick={() => setActivePubSection(section)}>{section}</button>
+                  ))}
               </nav>
-
-              {/* Content */}
-              <PublicationContent content={professorPublications[teamMembers[openDialogIndex].name][activePubSection]} />
+              <PublicationContent content={professorPublications[teamMembers[openDialogIndex].name]?.[activePubSection]} />
             </div>
           </div>
         )}
       </section>
 
-      {/* Research Section */}
+      {/* Sections: Research, Publications, Projects, Contact */}
       <section id="research" className="max-w-7xl mx-auto px-6 pb-16">
         <h2 className="text-4xl font-bold border-b border-gray-700 pb-3 mb-8">Research</h2>
-        <p className="text-gray-300 max-w-3xl text-xl">
-          Our lab focuses on containerization in vehicular edge computing,
-          microservice orchestration, Kubernetes-based edge service deployment,
-          and cutting-edge AI at the edge.
-        </p>
+        <p className="text-gray-300 text-xl">Our lab focuses on containerization in vehicular edge computing, microservice orchestration, Kubernetes-based edge service deployment, and cutting-edge AI at the edge.</p>
       </section>
 
-      {/* Publications Section */}
       <section id="publications" className="max-w-7xl mx-auto px-6 pb-16">
         <h2 className="text-4xl font-bold border-b border-gray-700 pb-3 mb-8">Publications</h2>
-        <ul className="list-disc list-inside text-gray-300 space-y-3 text-lg max-w-3xl">
+        <ul className="list-disc text-gray-300 space-y-3 text-lg max-w-3xl">
           <li>“Energy-Efficient Microservice Placement in VEC,” IEEE Transactions on Cloud Computing, 2025.</li>
           <li>“Reinforcement Learning for Microservice Orchestration,” ACM Symposium on Edge Computing, 2024.</li>
-          <li>“Containerization Techniques in Vehicular Networks,” Journal of Network and Systems Management, 2023.</li>
         </ul>
       </section>
 
-      {/* Projects Section */}
       <section id="projects" className="max-w-7xl mx-auto px-6 pb-16">
         <h2 className="text-4xl font-bold border-b border-gray-700 pb-3 mb-8">Projects</h2>
-        <ul className="list-disc list-inside text-gray-300 space-y-4 text-lg max-w-3xl">
+        <ul className="list-disc text-gray-300 space-y-4 text-lg max-w-3xl">
           <li><strong>Federated Microservice Deployment:</strong> RL-based orchestration in vehicular edge computing.</li>
           <li><strong>Energy Optimization in VEC:</strong> Algorithms for energy-efficient edge server placement.</li>
         </ul>
       </section>
 
-      {/* Contact Us Section */}
       <section id="contact-us" className="text-center max-w-xl mx-auto px-6 pb-16">
         <h2 className="text-4xl font-bold border-b border-gray-700 pb-3 mb-8">Contact Us</h2>
         <p className="text-gray-400 mb-4 text-xl"><strong>Email:</strong> funlab@example.com</p>
         <p className="text-gray-400 text-xl"><strong>Phone:</strong> +1 (555) 123-4567</p>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-gray-700 py-6 text-center text-gray-500 text-base select-none">
+      <footer className="border-t border-gray-700 py-6 text-center text-gray-500 text-base">
         © {new Date().getFullYear()} Fun Lab. All rights reserved.
       </footer>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<MainApp />} />
+        <Route path="/Admin" element={<Admin />} />
+      </Routes>
+    </Router>
   );
 }
