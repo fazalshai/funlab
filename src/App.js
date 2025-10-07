@@ -41,6 +41,14 @@ const professorPublications = {
         <li>Tiered sentence based topic model for multi-document summarization</li>
       </ul>
     ),
+      Patents: (
+      <ul className="list-disc pl-5 space-y-2">
+        <li>System and method for air quality monitoring and alert generation using AI</li>
+        <li>Automated attendance registration system</li>
+        <li>Medical image analysis using federated edge learning</li>
+        <li>Underwater data transmission and object detection</li>
+      </ul>
+    ),
   },
   "Dr. Firoj Gazi": {
     Journals: (
