@@ -142,7 +142,7 @@ const teamMembers = [
   { name: "Dr. Mohammad Abdussami", role: "Assistant Professor", department: "Department of Computer Science and Engineering", img: SamiSirImg },
   { name: "Dr Sahadeb Shit", role: "Assistant Professor", department: "Department of Computer Science and Engineering", img: sahadeb },
   { name: "Ms Surayya", role: "PhD Scholar", img: SurayyaImg },
-  { name: "Sripalli Hemanth Durga Kumar", role: "PhD Scholar", img: HemanthImg },
+  { name: "Siripalli Hemanth Durga Kumar", role: "PhD Scholar", img: HemanthImg },
   { name: "Madhu Bhushan", role: "PhD Scholar", img: MadhuImg },
   { name: "Sultan Khan", role: "PhD Scholar", img: sulthan },
 ];
@@ -150,7 +150,7 @@ const teamMembers = [
 const carouselSlides = [
   { image: c1, title: "Research day-4 winners 2024 (2 golds, 1 silver)" },
   { image: c2, title: "Workshop on AI&ML, IoT 2024" },
-  { image: c3, title: "5th Research day winners 2025 (1 gold, 2 silver)" },
+  { image: c3, title: "9th Research day winners 2025 (1 gold, 2 silver)" },
   { image: c4, title: "Techpreneur Event presentations 2024" },
   { image: c6, title: "Best Conference paper (2025) TU Darmstadt, Germany" },
   { image: c5, title: "EBC-3.0 Winner & ₹50k cash prize 2025" },
