@@ -1,168 +1,224 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 export default function Admin() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  // === Backend URL ===
+  const BASE_URL = "https://funlab-backend.onrender.com";
 
-  const [entries, setEntries] = useState([]);
-  const [form, setForm] = useState({
-    name: "",
-    regNo: "",
-    contact: "",
-    items: "",
-  });
+  // === States ===
+  const [id, setId] = useState("");
+  const [name, setName] = useState("");
+  const [regNo, setRegNo] = useState("");
+  const [itemName, setItemName] = useState("");
+  const [issuedDate, setIssuedDate] = useState("");
 
-  // Load saved entries from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem("funlabEntries");
-    if (saved) {
-      setEntries(JSON.parse(saved));
+  const [fingerprintLogs, setFingerprintLogs] = useState([]);
+  const [borrowedItems, setBorrowedItems] = useState([]);
+
+  // === Fetch all data ===
+  const fetchAll = async () => {
+    try {
+      const [logsRes, borrowedRes] = await Promise.all([
+        axios.get(`${BASE_URL}/logs`),
+        axios.get(`${BASE_URL}/borrowed-items`),
+      ]);
+      setFingerprintLogs(logsRes.data);
+      setBorrowedItems(borrowedRes.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
     }
+  };
+
+  useEffect(() => {
+    fetchAll();
+    // Auto-refresh every 10 seconds for live updates
+    const interval = setInterval(fetchAll, 10000);
+    return () => clearInterval(interval);
   }, []);
 
-  // Save to localStorage whenever entries change
-  useEffect(() => {
-    localStorage.setItem("funlabEntries", JSON.stringify(entries));
-  }, [entries]);
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (username === "fazal" && password === "983") {
-      setIsLoggedIn(true);
-    } else {
-      alert("Invalid credentials");
-    }
-  };
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleAdd = (e) => {
-    e.preventDefault();
-    if (!form.name || !form.regNo) {
-      alert("Name and Registration Number are required");
+  // === Save Fingerprint User Info ===
+  const handleSaveUser = async () => {
+    if (!id || !name) {
+      alert("⚠️ Please fill both ID and Name fields");
       return;
     }
-    setEntries([...entries, { ...form, id: Date.now() }]);
-    setForm({ name: "", regNo: "", contact: "", items: "" });
+    try {
+      await axios.post(`${BASE_URL}/save-user`, { id, name, regNo });
+      alert("✅ User information saved successfully");
+      setId("");
+      setName("");
+      setRegNo("");
+      fetchAll();
+    } catch (error) {
+      console.error("Error saving user:", error);
+      alert("❌ Error saving user info");
+    }
   };
 
-  const handleDelete = (id) => {
-    setEntries(entries.filter((entry) => entry.id !== id));
+  // === Add Borrowed Item ===
+  const handleAddItem = async () => {
+    if (!name || !regNo || !itemName || !issuedDate) {
+      alert("⚠️ Please fill all item fields");
+      return;
+    }
+    try {
+      await axios.post(`${BASE_URL}/borrow-item`, {
+        name,
+        regNo,
+        item: itemName,
+        issuedDate,
+      });
+      alert("✅ Item added successfully");
+      setName("");
+      setRegNo("");
+      setItemName("");
+      setIssuedDate("");
+      fetchAll();
+    } catch (error) {
+      console.error("Error adding item:", error);
+      alert("❌ Error adding item");
+    }
   };
 
-  if (!isLoggedIn) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
-        <form
-          onSubmit={handleLogin}
-          className="bg-gray-800 p-8 rounded-lg shadow-md w-80"
-        >
-          <h2 className="text-2xl font-bold mb-4">Admin Login</h2>
-          <input
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="w-full mb-3 px-3 py-2 rounded bg-gray-700 text-white"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full mb-3 px-3 py-2 rounded bg-gray-700 text-white"
-          />
-          <button
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded font-semibold"
-          >
-            Login
-          </button>
-        </form>
-      </div>
-    );
-  }
+  // === Delete Logs / Items ===
+  const deleteLog = async (i) => {
+    await axios.delete(`${BASE_URL}/logs/${i}`);
+    fetchAll();
+  };
 
+  const deleteItem = async (i) => {
+    await axios.delete(`${BASE_URL}/borrowed-items/${i}`);
+    fetchAll();
+  };
+
+  // === Render ===
   return (
-    <div className="min-h-screen bg-black text-white p-6">
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
+    <div className="min-h-screen bg-gray-900 text-white p-6">
+      <h1 className="text-3xl font-bold mb-6 text-center">
+        Admin Panel - FUN LAB
+      </h1>
 
-      {/* Entry Form */}
-      <form
-        onSubmit={handleAdd}
-        className="bg-gray-800 p-6 rounded-lg shadow-md mb-6 max-w-lg"
-      >
-        <h2 className="text-xl font-semibold mb-4">Add Entry</h2>
+      {/* === Register Fingerprint User === */}
+      <h2 className="text-xl mb-3 font-semibold">Register Fingerprint User</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
         <input
-          type="text"
-          name="name"
+          placeholder="Fingerprint ID"
+          className="p-2 rounded text-black"
+          value={id}
+          onChange={(e) => setId(e.target.value)}
+        />
+        <input
           placeholder="Name"
-          value={form.name}
-          onChange={handleChange}
-          className="w-full mb-3 px-3 py-2 rounded bg-gray-700 text-white"
+          className="p-2 rounded text-black"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
         />
         <input
-          type="text"
-          name="regNo"
-          placeholder="Registration Number"
-          value={form.regNo}
-          onChange={handleChange}
-          className="w-full mb-3 px-3 py-2 rounded bg-gray-700 text-white"
+          placeholder="Reg No (optional)"
+          className="p-2 rounded text-black"
+          value={regNo}
+          onChange={(e) => setRegNo(e.target.value)}
         />
-        <input
-          type="text"
-          name="contact"
-          placeholder="Contact Number"
-          value={form.contact}
-          onChange={handleChange}
-          className="w-full mb-3 px-3 py-2 rounded bg-gray-700 text-white"
-        />
-        <input
-          type="text"
-          name="items"
-          placeholder="Items"
-          value={form.items}
-          onChange={handleChange}
-          className="w-full mb-3 px-3 py-2 rounded bg-gray-700 text-white"
-        />
-        <button
-          type="submit"
-          className="w-full bg-green-600 hover:bg-green-700 py-2 rounded font-semibold"
-        >
-          Add Entry
+        <button className="bg-green-600 p-2 rounded" onClick={handleSaveUser}>
+          Save User
         </button>
-      </form>
-
-      {/* Entries List */}
-      <h2 className="text-2xl font-bold mb-4">Entries</h2>
-      <div className="space-y-3">
-        {entries.length === 0 ? (
-          <p className="text-gray-400">No entries yet.</p>
-        ) : (
-          entries.map((entry) => (
-            <div
-              key={entry.id}
-              className="bg-gray-800 p-4 rounded-lg flex justify-between items-center"
-            >
-              <div>
-                <p><strong>Name:</strong> {entry.name}</p>
-                <p><strong>Reg No:</strong> {entry.regNo}</p>
-                <p><strong>Contact:</strong> {entry.contact}</p>
-                <p><strong>Items:</strong> {entry.items}</p>
-              </div>
-              <button
-                onClick={() => handleDelete(entry.id)}
-                className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
-              >
-                Delete
-              </button>
-            </div>
-          ))
-        )}
       </div>
+
+      {/* === Borrowed Item Section === */}
+      <h2 className="text-xl mb-3 font-semibold">Add Borrowed Item</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 mb-6">
+        <input
+          placeholder="Name"
+          className="p-2 rounded text-black"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <input
+          placeholder="Reg No"
+          className="p-2 rounded text-black"
+          value={regNo}
+          onChange={(e) => setRegNo(e.target.value)}
+        />
+        <input
+          placeholder="Item Name"
+          className="p-2 rounded text-black"
+          value={itemName}
+          onChange={(e) => setItemName(e.target.value)}
+        />
+        <input
+          type="date"
+          className="p-2 rounded text-black"
+          value={issuedDate}
+          onChange={(e) => setIssuedDate(e.target.value)}
+        />
+        <button className="bg-blue-600 p-2 rounded" onClick={handleAddItem}>
+          Add Item
+        </button>
+      </div>
+
+      {/* === Fingerprint Logs === */}
+      <h2 className="text-xl font-semibold mb-2">Fingerprint Logs</h2>
+      <table className="w-full text-left bg-gray-800 rounded mb-6">
+        <thead>
+          <tr className="bg-gray-700 text-white">
+            <th className="p-2">#</th>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Direction</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+          {[...fingerprintLogs].reverse().map((log, i) => (
+            <tr key={i} className="border-t border-gray-700">
+              <td className="p-2">{i + 1}</td>
+              <td>{log.id}</td>
+              <td>{log.name}</td>
+              <td>{log.date}</td>
+              <td>{log.time}</td>
+              <td>{log.direction}</td>
+              <td>
+                <button className="text-red-500" onClick={() => deleteLog(i)}>
+                  Delete
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {/* === Borrowed Items === */}
+      <h2 className="text-xl font-semibold mb-2">Borrowed Items</h2>
+      <table className="w-full text-left bg-gray-800 rounded">
+        <thead>
+          <tr className="bg-gray-700 text-white">
+            <th className="p-2">#</th>
+            <th>Name</th>
+            <th>Reg No</th>
+            <th>Item</th>
+            <th>Issued Date</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+          {borrowedItems.map((item, i) => (
+            <tr key={i} className="border-t border-gray-700">
+              <td className="p-2">{i + 1}</td>
+              <td>{item.name}</td>
+              <td>{item.regNo}</td>
+              <td>{item.item}</td>
+              <td>{item.issuedDate}</td>
+              <td>
+                <button className="text-red-500" onClick={() => deleteItem(i)}>
+                  Delete
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
