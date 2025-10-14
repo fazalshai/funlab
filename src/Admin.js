@@ -5,7 +5,12 @@ export default function Admin() {
   // === Backend URL ===
   const BASE_URL = "https://funlab-backend.onrender.com";
 
-  // === States ===
+  // === Login state ===
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  // === Form states ===
   const [id, setId] = useState("");
   const [name, setName] = useState("");
   const [regNo, setRegNo] = useState("");
@@ -30,11 +35,22 @@ export default function Admin() {
   };
 
   useEffect(() => {
-    fetchAll();
-    // Auto-refresh every 10 seconds for live updates
-    const interval = setInterval(fetchAll, 10000);
-    return () => clearInterval(interval);
-  }, []);
+    if (isAuthenticated) {
+      fetchAll();
+      const interval = setInterval(fetchAll, 10000);
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated]);
+
+  // === Login Handler ===
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (username === "funlab" && password === "funlab") {
+      setIsAuthenticated(true);
+    } else {
+      alert("❌ Invalid credentials. Try again.");
+    }
+  };
 
   // === Save Fingerprint User Info ===
   const handleSaveUser = async () => {
@@ -91,7 +107,72 @@ export default function Admin() {
     fetchAll();
   };
 
-  // === Render ===
+  // === CSV Download for Attendance ===
+  const downloadCSV = () => {
+    if (fingerprintLogs.length === 0) {
+      alert("⚠️ No attendance data to download");
+      return;
+    }
+
+    const headers = ["#", "ID", "Name", "Date", "Time", "Direction"];
+    const rows = fingerprintLogs.map((log, i) => [
+      i + 1,
+      log.id,
+      log.name,
+      log.date,
+      log.time,
+      log.direction,
+    ]);
+
+    const csvContent =
+      [headers, ...rows]
+        .map((e) => e.map((x) => `"${x ?? ""}"`).join(","))
+        .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `funlab_attendance_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+  };
+
+  // === Login Page ===
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">
+        <form
+          onSubmit={handleLogin}
+          className="bg-gray-800 p-8 rounded-lg shadow-lg w-80"
+        >
+          <h2 className="text-2xl font-bold text-center mb-6">Admin Login</h2>
+
+          <input
+            type="text"
+            placeholder="Username"
+            className="w-full mb-4 p-2 rounded text-black"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            className="w-full mb-4 p-2 rounded text-black"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          <button
+            type="submit"
+            className="w-full bg-blue-600 p-2 rounded hover:bg-blue-700"
+          >
+            Login
+          </button>
+        </form>
+      </div>
+    );
+  }
+
+  // === Main Admin Panel ===
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">
       <h1 className="text-3xl font-bold mb-6 text-center">
@@ -157,7 +238,16 @@ export default function Admin() {
       </div>
 
       {/* === Fingerprint Logs === */}
-      <h2 className="text-xl font-semibold mb-2">Fingerprint Logs</h2>
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-xl font-semibold">Fingerprint Logs</h2>
+        <button
+          className="bg-yellow-500 text-black px-4 py-2 rounded hover:bg-yellow-400"
+          onClick={downloadCSV}
+        >
+          ⬇ Download CSV
+        </button>
+      </div>
+
       <table className="w-full text-left bg-gray-800 rounded mb-6">
         <thead>
           <tr className="bg-gray-700 text-white">
