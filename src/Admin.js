@@ -45,7 +45,7 @@ export default function Admin() {
   // === Login Handler ===
   const handleLogin = (e) => {
     e.preventDefault();
-    if (username === "funlab" && password === "funlab") {
+    if (username === "funlab" && password === "JC@bio") {
       setIsAuthenticated(true);
     } else {
       alert("❌ Invalid credentials. Try again.");
