@@ -27,7 +27,7 @@ export default function Admin() {
     22: { name: "Sahadeb", regNo: "REG022" },
     23: { name: "Abdussami", regNo: "REG023" },
     24: { name: "Surraya", regNo: "REG024" },
-    25: { name: "Vinay", regNo: "REG025" },
+    25: { name: "Sanjay", regNo: "REG025" },
     26: { name: "Sneha", regNo: "REG026" },
     27: { name: "Farhan", regNo: "REG027" },
     28: { name: "Pooja", regNo: "REG028" },
