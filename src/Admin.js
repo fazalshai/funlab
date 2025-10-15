@@ -4,6 +4,47 @@ import axios from "axios";
 export default function Admin() {
   const BASE_URL = "https://funlab-backend.onrender.com";
 
+  // ✅ Manual ID-to-name mapping
+  const idToNameMap = {
+    4: { name: "Madhu", regNo: "REG004" },
+    5: { name: "Lahari", regNo: "REG005" },
+    6: { name: "Swetha", regNo: "REG006" },
+    7: { name: "Priyanka", regNo: "REG007" },
+    8: { name: "Jacky", regNo: "REG008" },
+    9: { name: "Fazal", regNo: "REG009" },
+    10: { name: "Gazi", regNo: "REG010" },
+    11: { name: "Jahnava", regNo: "REG011" },
+    12: { name: "Greeshma", regNo: "REG012" },
+    13: { name: "Divya", regNo: "REG013" },
+    14: { name: "AKash Harsha", regNo: "REG014" },
+    15: { name: "Hemanth69", regNo: "REG015" },
+    16: { name: "Sulthan", regNo: "REG016" },
+    17: { name: "Sasikanth", regNo: "REG017" },
+    18: { name: "Ashwini ", regNo: "REG018" },
+    19: { name: "Siddu", regNo: "REG019" },
+    20: { name: "Musavvir", regNo: "REG020" },
+    21: { name: "Devi Sree", regNo: "REG021" },
+    22: { name: "Sahadeb", regNo: "REG022" },
+    23: { name: "Abdussami", regNo: "REG023" },
+    24: { name: "Surraya", regNo: "REG024" },
+    25: { name: "Vinay", regNo: "REG025" },
+    26: { name: "Sneha", regNo: "REG026" },
+    27: { name: "Farhan", regNo: "REG027" },
+    28: { name: "Pooja", regNo: "REG028" },
+    29: { name: "Shiva", regNo: "REG029" },
+    30: { name: "Keerthi", regNo: "REG030" },
+    31: { name: "Rakesh", regNo: "REG031" },
+    32: { name: "Aditi", regNo: "REG032" },
+    33: { name: "Mohit", regNo: "REG033" },
+    34: { name: "Lakshmi", regNo: "REG034" },
+    35: { name: "Arun", regNo: "REG035" },
+    36: { name: "Divya", regNo: "REG036" },
+    37: { name: "Imran", regNo: "REG037" },
+    38: { name: "Neha", regNo: "REG038" },
+    39: { name: "Vikram", regNo: "REG039" },
+    40: { name: "Kiran", regNo: "REG040" },
+  };
+
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -13,16 +54,14 @@ export default function Admin() {
   const [regNo, setRegNo] = useState("");
   const [itemName, setItemName] = useState("");
   const [issuedDate, setIssuedDate] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
 
   const [fingerprintLogs, setFingerprintLogs] = useState([]);
   const [borrowedItems, setBorrowedItems] = useState([]);
-  const [selectedDate, setSelectedDate] = useState("");
 
   const fetchLogs = async (date = "") => {
     try {
-      const url = date
-        ? `${BASE_URL}/logs?date=${date}`
-        : `${BASE_URL}/logs`;
+      const url = date ? `${BASE_URL}/logs?date=${date}` : `${BASE_URL}/logs`;
       const res = await axios.get(url);
       setFingerprintLogs(res.data);
     } catch (error) {
@@ -30,7 +69,7 @@ export default function Admin() {
     }
   };
 
-  const fetchBorrowed = async () => {
+  const fetchBorrowedItems = async () => {
     try {
       const res = await axios.get(`${BASE_URL}/borrowed-items`);
       setBorrowedItems(res.data);
@@ -41,7 +80,7 @@ export default function Admin() {
 
   const fetchAll = () => {
     fetchLogs(selectedDate);
-    fetchBorrowed();
+    fetchBorrowedItems();
   };
 
   useEffect(() => {
@@ -51,6 +90,14 @@ export default function Admin() {
       return () => clearInterval(interval);
     }
   }, [isAuthenticated, selectedDate]);
+
+  // ✅ Auto-fill name/regNo from map when ID changes
+  useEffect(() => {
+    if (idToNameMap[id]) {
+      setName(idToNameMap[id].name);
+      setRegNo(idToNameMap[id].regNo);
+    }
+  }, [id]);
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -62,7 +109,10 @@ export default function Admin() {
   };
 
   const handleSaveUser = async () => {
-    if (!id || !name) return alert("⚠️ Fill both ID and Name");
+    if (!id || !name) {
+      alert("⚠️ Fill both ID and Name");
+      return;
+    }
     try {
       await axios.post(`${BASE_URL}/save-user`, { id, name, regNo });
       alert("✅ User saved");
@@ -71,13 +121,16 @@ export default function Admin() {
       setRegNo("");
       fetchAll();
     } catch (err) {
+      console.error(err);
       alert("❌ Error saving user");
     }
   };
 
   const handleAddItem = async () => {
-    if (!name || !regNo || !itemName || !issuedDate)
-      return alert("⚠️ Fill all item fields");
+    if (!name || !regNo || !itemName || !issuedDate) {
+      alert("⚠️ Fill all item fields");
+      return;
+    }
     try {
       await axios.post(`${BASE_URL}/borrow-item`, {
         name,
@@ -91,34 +144,39 @@ export default function Admin() {
       setItemName("");
       setIssuedDate("");
       fetchAll();
-    } catch {
+    } catch (error) {
+      console.error(error);
       alert("❌ Error adding item");
     }
   };
 
-  const deleteLog = async (i) => {
-    await axios.delete(`${BASE_URL}/logs/${i}`);
+  const deleteLog = async (index) => {
+    await axios.delete(`${BASE_URL}/logs/${index}`);
     fetchAll();
   };
 
-  const deleteItem = async (i) => {
-    await axios.delete(`${BASE_URL}/borrowed-items/${i}`);
+  const deleteItem = async (index) => {
+    await axios.delete(`${BASE_URL}/borrowed-items/${index}`);
     fetchAll();
   };
 
   const downloadCSV = () => {
-    if (fingerprintLogs.length === 0) return alert("⚠️ No data");
+    if (fingerprintLogs.length === 0) {
+      alert("⚠️ No data to download");
+      return;
+    }
+
     const headers = ["#", "ID", "Name", "Date", "Time", "Direction"];
     const rows = fingerprintLogs.map((log, i) => [
       i + 1,
       log.id,
-      log.name,
+      idToNameMap[log.id]?.name || log.name || "Unknown",
       log.date,
       log.time,
       log.direction,
     ]);
-    const csv =
-      [headers, ...rows].map((r) => r.join(",")).join("\n");
+    const csv = [headers, ...rows].map((row) => row.join(",")).join("\n");
+
     const blob = new Blob([csv], { type: "text/csv" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
@@ -146,7 +204,7 @@ export default function Admin() {
     <div className="min-h-screen bg-gray-900 text-white p-6">
       <h1 className="text-3xl font-bold mb-6 text-center">Admin Panel - FUN LAB</h1>
 
-      {/* === User Registration === */}
+      {/* === Register User === */}
       <h2 className="text-xl mb-3 font-semibold">Register Fingerprint User</h2>
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
         <input placeholder="Fingerprint ID" className="p-2 rounded text-black"
@@ -160,7 +218,7 @@ export default function Admin() {
         </button>
       </div>
 
-      {/* === Borrowed Item Section === */}
+      {/* === Add Borrowed Item === */}
       <h2 className="text-xl mb-3 font-semibold">Add Borrowed Item</h2>
       <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 mb-6">
         <input placeholder="Name" className="p-2 rounded text-black"
@@ -199,7 +257,7 @@ export default function Admin() {
             <tr key={i} className="border-t border-gray-700">
               <td className="p-2">{i + 1}</td>
               <td>{log.id}</td>
-              <td>{log.name}</td>
+              <td>{idToNameMap[log.id]?.name || "Unknown"}</td>
               <td>{log.date}</td>
               <td>{log.time}</td>
               <td>{log.direction}</td>
