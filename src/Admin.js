@@ -30,19 +30,7 @@ export default function Admin() {
     25: { name: "Sanjay", regNo: "REG025" },
     26: { name: "Usman", regNo: "REG026" },
     27: { name: "Dyani", regNo: "REG027" },
-    28: { name: "Pooja", regNo: "REG028" },
-    29: { name: "Shiva", regNo: "REG029" },
-    30: { name: "Keerthi", regNo: "REG030" },
-    31: { name: "Rakesh", regNo: "REG031" },
-    32: { name: "Aditi", regNo: "REG032" },
-    33: { name: "Mohit", regNo: "REG033" },
-    34: { name: "Lakshmi", regNo: "REG034" },
-    35: { name: "Arun", regNo: "REG035" },
-    36: { name: "Divya", regNo: "REG036" },
-    37: { name: "Imran", regNo: "REG037" },
-    38: { name: "Neha", regNo: "REG038" },
-    39: { name: "Vikram", regNo: "REG039" },
-    40: { name: "Kiran", regNo: "REG040" },
+   
   };
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
