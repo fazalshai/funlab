@@ -30,7 +30,9 @@ export default function Admin() {
     25: { name: "Sanjay", regNo: "REG025" },
     26: { name: "Usman", regNo: "REG026" },
     27: { name: "Dyani", regNo: "REG027" },
-   
+    28: { name: "Alekhya", regNo: "REG028" },
+    29: { name: "Smitha", regNo: "REG029" },
+    30: { name: "Jyoshika", regNo: "REG030" },
   };
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
