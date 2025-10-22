@@ -35,7 +35,7 @@ export default function Admin() {
     30: { name: "Jyoshika", regNo: "REG030" },
       31: { name: "Daiwik ", regNo: "REG029" },
     32: { name: "Chakraborty", regNo: "REG030" },
-      33: { name: "Smitha", regNo: "REG029" },
+      33: { name: "Pavan varma", regNo: "REG029" },
     34: { name: "Jyoshika", regNo: "REG030" },
   };
 
