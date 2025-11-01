@@ -42,7 +42,7 @@ export default function Admin() {
       37: { name: "Aman Raj", regNo: "REG029" },
     38: { name: "Arnavameshar", regNo: "REG030" },
       39: { name: "fazal", regNo: "REG029" },
-    40: { name: "Jyoshika", regNo: "REG030" },
+    40: { name: "Abhishek", regNo: "REG030" },
   };
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
