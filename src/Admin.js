@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 export default function Admin() {
-  const BASE_URL = "https://funlab-backend.onrender.com";
+  const BASE_URL = "https://funlab-backend1.onrender.com"; 
 
   // ✅ Manual ID-to-name mapping
   const idToNameMap = {
