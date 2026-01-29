@@ -15,7 +15,7 @@ export default function ContactSection() {
                 <div className="space-y-4">
                     <p className="text-gray-300 text-xl font-light">
                         <span className="font-semibold text-white block mb-1">Email</span>
-                        <a href="mailto:funlab@example.com" className="text-blue-400 hover:underline">funlab@example.com</a>
+                        <a href="mailto:edgeaisrm@srmap.edu.in" className="text-blue-400 hover:underline">edgeaisrm@srmap.edu.in</a>
                     </p>
                     <div className="w-16 h-[1px] bg-gray-700 mx-auto my-6" />
                     <p className="text-gray-300 text-xl font-light">

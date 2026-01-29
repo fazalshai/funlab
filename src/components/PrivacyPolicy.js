@@ -57,7 +57,7 @@ const PrivacyPolicy = () => {
                     <h2 className="text-2xl font-semibold mb-4 text-white">5. Contact Us</h2>
                     <p className="text-gray-400 leading-relaxed">
                         If you have questions or comments about this Privacy Policy, please contact us at:<br />
-                        <strong>fazalshaik24434@gmail.com</strong>
+                        <strong>edgeaisrm@srmap.edu.in</strong>
                     </p>
                 </section>
             </div>
