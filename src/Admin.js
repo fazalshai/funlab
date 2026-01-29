@@ -113,38 +113,27 @@ export default function Admin() {
     }
   };
 
-  const deleteLog = async (index) => {
+  const deleteLog = async (id) => {
     if (window.confirm("Are you sure you want to delete this log?")) {
-      // Warning: The API expects the mongo _id, not the index.
-      const logToDelete = fingerprintLogs[index];
-      // The previous code was sending `index` to `${BASE_URL}/logs/${index}`. 
-      // But the backend `server.js` uses `req.params.id` to delete by `_id`.
-      // The frontend loop used index `i` which was just the array index.
-      // Wait, looking at backend: `await logsCollection.deleteOne({ _id: new ObjectId(req.params.id) });`
-      // So the frontend MUST send the `_id`.
-      // The original code `deleteLog(i)`... sent `i`. That was likely broken if it was sending just the array index unless `index` variable WAS the id?
-      // Let's look at original Admin.js line 264: `onClick={() => deleteLog(i)}`. And line 154: `delete(`${BASE_URL}/logs/${index}`)`.
-      // This suggests the Original Code was likely sending the array index, which would FAIL on backend expecting ObjectId.
-      // OR `log._id` was assumed.
-      // I will fix this to use `log._id` if available.
-      if (logToDelete && logToDelete._id) {
+      if (id) {
         try {
-          await axios.delete(`${BASE_URL}/logs/${logToDelete._id}`);
+          await axios.delete(`${BASE_URL}/logs/${id}`);
           fetchAll();
-        } catch (e) { console.error(e); alert("Failed to delete"); }
+        } catch (e) {
+          console.error(e);
+          alert("Failed to delete");
+        }
       } else {
-        console.error("Log ID missing", logToDelete);
         alert("Cannot delete: ID missing");
       }
     }
   };
 
-  const deleteItem = async (index) => {
+  const deleteItem = async (id) => {
     if (window.confirm("Are you sure you want to delete this item?")) {
-      const itemToDelete = borrowedItems[index];
-      if (itemToDelete && itemToDelete._id) {
+      if (id) {
         try {
-          await axios.delete(`${BASE_URL}/borrowed-items/${itemToDelete._id}`);
+          await axios.delete(`${BASE_URL}/borrowed-items/${id}`);
           fetchAll();
         } catch (e) { console.error(e); alert("Failed to delete"); }
       } else {
@@ -270,7 +259,7 @@ export default function Admin() {
                         {log.direction}
                       </span>
                     </td>
-                    <td className="p-3"><button className="text-red-400 hover:text-red-300 transition-colors" onClick={() => deleteLog(i)}>Delete</button></td>
+                    <td className="p-3"><button className="text-red-400 hover:text-red-300 transition-colors" onClick={() => deleteLog(log._id)}>Delete</button></td>
                   </tr>
                 ))}
               </tbody>
@@ -297,7 +286,7 @@ export default function Admin() {
                     <td className="p-3 text-gray-400">{item.regNo}</td>
                     <td className="p-3 text-blue-300">{item.item}</td>
                     <td className="p-3 text-gray-400">{item.issuedDate}</td>
-                    <td className="p-3"><button className="text-red-400 hover:text-red-300 transition-colors" onClick={() => deleteItem(i)}>Delete</button></td>
+                    <td className="p-3"><button className="text-red-400 hover:text-red-300 transition-colors" onClick={() => deleteItem(item._id)}>Delete</button></td>
                   </tr>
                 ))}
               </tbody>

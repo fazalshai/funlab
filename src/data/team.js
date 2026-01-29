@@ -64,12 +64,12 @@ export const alumniMembers = [
     },
     {
         name: "Priya",
-        role: "Alumni",
-        img: "/images/Fun logo.png" // Placeholder
+        role: "Alumni - Class of 2025",
+        img: "/images/priya.jpg"
     },
     {
         name: "Fazal",
-        role: "Alumni",
-        img: "/images/Fun logo.png" // Placeholder
+        role: "Alumni - Class of 2025",
+        img: "/images/fazal_profile.jpg"
     }
 ];
