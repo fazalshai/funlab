@@ -11,6 +11,8 @@ import PublicationsSection from "./components/PublicationsSection";
 import ProjectsSection from "./components/ProjectsSection";
 import ContactSection from "./components/ContactSection";
 import Footer from "./components/Footer";
+import PrivacyPolicy from "./components/PrivacyPolicy";
+import Terms from "./components/Terms";
 import "./App.css"; // Ensure standard styles are loaded
 
 function MainApp() {
@@ -36,6 +38,8 @@ export default function App() {
         <Route path="/" element={<MainApp />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/alumni" element={<Alumni />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-and-conditions" element={<Terms />} />
       </Routes>
     </Router>
   );
