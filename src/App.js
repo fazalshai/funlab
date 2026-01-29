@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Admin from "./Admin";
+import Alumni from "./components/Alumni";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import Carousel from "./components/Carousel";
@@ -34,6 +35,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<MainApp />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/alumni" element={<Alumni />} />
       </Routes>
     </Router>
   );

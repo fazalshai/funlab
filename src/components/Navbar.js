@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+import { useNavigate, useLocation } from "react-router-dom";
+
 export default function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
         const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -11,15 +15,26 @@ export default function Navbar() {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
-    const scrollToSection = (id) => {
+    const handleNavClick = (id) => {
         setMobileMenuOpen(false);
-        const section = document.getElementById(id);
-        if (section) {
-            section.scrollIntoView({ behavior: "smooth" });
+        if (id === "alumni") {
+            navigate("/alumni");
+            return;
+        }
+
+        if (location.pathname !== "/") {
+            navigate("/");
+            setTimeout(() => {
+                const section = document.getElementById(id);
+                if (section) section.scrollIntoView({ behavior: "smooth" });
+            }, 100);
+        } else {
+            const section = document.getElementById(id);
+            if (section) section.scrollIntoView({ behavior: "smooth" });
         }
     };
 
-    const navItems = ["Our Team", "Research", "Publications", "Projects", "Contact Us"];
+    const navItems = ["Our Team", "Research", "Publications", "Projects", "Alumni", "Contact Us"];
 
     return (
         <>
@@ -28,7 +43,7 @@ export default function Navbar() {
                     }`}
             >
                 <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-                    <div className="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+                    <div className="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600 cursor-pointer" onClick={() => navigate("/")}>
                         FUN LAB
                     </div>
 
@@ -37,7 +52,7 @@ export default function Navbar() {
                         {navItems.map((item) => (
                             <button
                                 key={item}
-                                onClick={() => scrollToSection(item.toLowerCase().replace(/\s+/g, "-"))}
+                                onClick={() => handleNavClick(item.toLowerCase().replace(/\s+/g, "-"))}
                                 className="text-gray-300 hover:text-blue-400 transition-all duration-300 hover:scale-105 relative group"
                             >
                                 {item}
@@ -72,7 +87,7 @@ export default function Navbar() {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.1 }}
-                                onClick={() => scrollToSection(item.toLowerCase().replace(/\s+/g, "-"))}
+                                onClick={() => handleNavClick(item.toLowerCase().replace(/\s+/g, "-"))}
                                 className="text-2xl font-bold text-white hover:text-blue-500 tracking-wider"
                             >
                                 {item}

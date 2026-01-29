@@ -53,7 +53,7 @@ export const teamMembers = [
 export const alumniMembers = [
     {
         name: "Dr. Aswani Devi",
-        role: "Alumni / Former Assistant Professor", // Clarified role
+        role: "Alumni / Former Assistant Professor",
         department: "Department of Computer Science and Engineering",
         img: "/images/ashwini.jpg"
     },
@@ -61,5 +61,15 @@ export const alumniMembers = [
         name: "Nandhini",
         role: "Alumni / Former PhD Scholar",
         img: "/images/nandhini.jpg"
+    },
+    {
+        name: "Priya",
+        role: "Alumni",
+        img: "/images/Fun logo.png" // Placeholder
+    },
+    {
+        name: "Fazal",
+        role: "Alumni",
+        img: "/images/Fun logo.png" // Placeholder
     }
 ];

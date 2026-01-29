@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { teamMembers, alumniMembers } from "../data/team";
+import { teamMembers } from "../data/team";
 import professorPublications from "../data/publications";
 import PublicationModal from "./PublicationModal";
 import { motion } from "framer-motion";
@@ -67,28 +67,6 @@ export default function TeamSection() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
                 {teamMembers.map((member, index) => renderMemberCard(member, index))}
             </div>
-
-            {/* Alumni Section */}
-            {alumniMembers && alumniMembers.length > 0 && (
-                <>
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        whileInView={{ opacity: 1 }}
-                        viewport={{ once: true }}
-                        className="flex items-center justify-center gap-4 mb-10"
-                    >
-                        <div className="h-[1px] w-20 bg-gray-700"></div>
-                        <h2 className="text-3xl sm:text-4xl font-bold text-gray-400 uppercase tracking-widest">
-                            Alumni
-                        </h2>
-                        <div className="h-[1px] w-20 bg-gray-700"></div>
-                    </motion.div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
-                        {alumniMembers.map((member, index) => renderMemberCard(member, index, true))}
-                    </div>
-                </>
-            )}
 
             {openDialogIndex !== null && (
                 <PublicationModal
