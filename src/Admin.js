@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import config from "./data/config";
-import idToNameMap from "./data/userMap";
-
 export default function Admin() {
   const { BASE_URL } = config;
 
@@ -19,6 +17,23 @@ export default function Admin() {
 
   const [fingerprintLogs, setFingerprintLogs] = useState([]);
   const [borrowedItems, setBorrowedItems] = useState([]);
+  const [registeredUsers, setRegisteredUsers] = useState([]);
+  const [userMap, setUserMap] = useState({});
+
+  // Fetch users
+  const fetchUsers = React.useCallback(async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/users`);
+      setRegisteredUsers(res.data);
+
+      // Build map for easy lookup
+      const map = {};
+      res.data.forEach(u => map[u.id] = u);
+      setUserMap(map);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  }, [BASE_URL]);
 
   // Fetch logs
   const fetchLogs = React.useCallback(async (date = "") => {
@@ -44,7 +59,8 @@ export default function Admin() {
   const fetchAll = React.useCallback(() => {
     fetchLogs(selectedDate);
     fetchBorrowedItems();
-  }, [fetchLogs, fetchBorrowedItems, selectedDate]);
+    fetchUsers();
+  }, [fetchLogs, fetchBorrowedItems, fetchUsers, selectedDate]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -56,11 +72,11 @@ export default function Admin() {
 
   // Auto-fill name/regNo from map
   useEffect(() => {
-    if (idToNameMap[id]) {
-      setName(idToNameMap[id].name);
-      setRegNo(idToNameMap[id].regNo);
+    if (userMap[id]) {
+      setName(userMap[id].name);
+      setRegNo(userMap[id].regNo);
     }
-  }, [id]);
+  }, [id, userMap]);
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -152,7 +168,7 @@ export default function Admin() {
     const rows = fingerprintLogs.map((log, i) => [
       i + 1,
       log.id,
-      idToNameMap[log.id]?.name || log.name || "Unknown",
+      userMap[log.id]?.name || log.name || "Unknown",
       log.date,
       log.time,
       log.direction,
@@ -207,7 +223,6 @@ export default function Admin() {
             </div>
           </div>
 
-          {/* === Add Borrowed Item === */}
           <div className="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700">
             <h2 className="text-xl mb-4 font-semibold text-blue-400 border-b border-gray-700 pb-2">Add Borrowed Item</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -223,6 +238,33 @@ export default function Admin() {
                 Add Item
               </button>
             </div>
+          </div>
+        </div>
+
+        {/* === Registered Users Table === */}
+        <div className="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 mb-12">
+          <h2 className="text-xl font-semibold mb-6 text-green-400">Registered Users</h2>
+          <div className="max-h-60 overflow-y-auto">
+            <table className="w-full text-left bg-gray-900 rounded-lg overflow-hidden">
+              <thead className="sticky top-0 z-10">
+                <tr className="bg-gray-700 text-gray-300 uppercase text-xs tracking-wider">
+                  <th className="p-3">ID</th><th className="p-3">Name</th><th className="p-3">Reg No</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-800">
+                {registeredUsers.length === 0 ? (
+                  <tr><td colSpan="3" className="p-4 text-center text-gray-500">No users registered</td></tr>
+                ) : (
+                  registeredUsers.map((u, i) => (
+                    <tr key={i} className="hover:bg-gray-800/50 transition-colors">
+                      <td className="p-3 text-white font-mono">{u.id}</td>
+                      <td className="p-3 font-medium text-white">{u.name}</td>
+                      <td className="p-3 text-gray-400">{u.regNo || "-"}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -251,7 +293,7 @@ export default function Admin() {
                   <tr key={i} className="hover:bg-gray-800/50 transition-colors">
                     <td className="p-3 text-gray-400">{i + 1}</td>
                     <td className="p-3">{log.id}</td>
-                    <td className="p-3 font-medium">{idToNameMap[log.id]?.name || "Unknown"}</td>
+                    <td className="p-3 font-medium">{userMap[log.id]?.name || log.name || "Unknown"}</td>
                     <td className="p-3 text-gray-400">{log.date}</td>
                     <td className="p-3 text-gray-400">{log.time}</td>
                     <td className="p-3">
