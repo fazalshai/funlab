@@ -203,7 +203,20 @@ export default function Admin() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-blue-400">Admin Panel - FUN LAB</h1>
-          <button className="text-sm text-gray-400 hover:text-white" onClick={() => setIsAuthenticated(false)}>Logout</button>
+          <div className="flex gap-4">
+            <button className="bg-red-600 px-4 py-2 rounded text-white font-bold hover:bg-red-700 transition"
+              onClick={async () => {
+                if (window.confirm("Remote Unlock Door?")) {
+                  try {
+                    await axios.post(`${BASE_URL}/admin/unlock`);
+                    alert("🔓 Unlock command sent!");
+                  } catch (e) { alert("Error sending command"); }
+                }
+              }}>
+              🔓 Remote Unlock
+            </button>
+            <button className="text-sm text-gray-400 hover:text-white" onClick={() => setIsAuthenticated(false)}>Logout</button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
