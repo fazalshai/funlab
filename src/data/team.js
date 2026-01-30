@@ -46,7 +46,7 @@ export const teamMembers = [
     {
         name: "Sasikanth",
         role: "PhD Scholar",
-        img: "/images/Fun logo.png" // Placeholder as requested
+        img: "/images/sasikanth.png" // Placeholder as requested
     }
 ];
 
