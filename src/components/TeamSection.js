@@ -43,7 +43,7 @@ export default function TeamSection() {
                     <img
                         src={img}
                         alt={name}
-                        className="w-full h-full rounded-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        className="w-full h-full rounded-full object-cover object-top transition-transform duration-500 group-hover:scale-110"
                     />
                 </div>
                 <h3 className={`text-xl font-bold mb-2 transition-colors ${hasPublications ? "group-hover:text-blue-400" : "text-white"}`}>
