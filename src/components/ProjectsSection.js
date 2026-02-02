@@ -3,8 +3,9 @@ import { motion } from "framer-motion";
 
 export default function ProjectsSection() {
     const projects = [
-        { title: "Federated Microservice Deployment", description: "RL-based orchestration in vehicular edge computing." },
-        { title: "Energy Optimization in VEC", description: "Algorithms for energy-efficient edge server placement." }
+        { title: "Optimizing models for TinyML", description: "Efficient model compression and deployment on resource-constrained devices." },
+        { title: "Underwater Sensor Networks", description: "Robust communication and data collection systems for underwater environments." },
+        { title: "Robotics with LLM Integration", description: "Enhancing edge-based robotic decision making using Large Language Models." }
     ];
 
     return (
