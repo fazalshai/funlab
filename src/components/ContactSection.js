@@ -17,6 +17,15 @@ export default function ContactSection() {
                         <p className="text-xl font-bold text-white">Dr. Firoj Gazi</p>
                         <p className="text-blue-400">Assistant Professor</p>
                         <a href="mailto:firoj.g@srmap.edu.in" className="text-gray-400 hover:text-white transition-colors block">firoj.g@srmap.edu.in</a>
+                        <p className="text-gray-400 mt-1">+91 84207 27174</p>
+                    </div>
+
+                    <div className="w-full h-[1px] bg-gray-700 my-4" />
+
+                    <div className="mb-6">
+                        <p className="text-xl font-bold text-white">Ch Madhu Bhushan</p>
+                        <p className="text-green-400">Student Coordinator</p>
+                        <p className="text-gray-400 mt-1">+91 78719 47079</p>
                     </div>
 
                     <div className="w-full h-[1px] bg-gray-700 my-4" />

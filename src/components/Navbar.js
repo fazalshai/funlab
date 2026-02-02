@@ -43,8 +43,8 @@ export default function Navbar() {
                     }`}
             >
                 <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-                    <div className="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600 cursor-pointer" onClick={() => navigate("/")}>
-                        FUN LAB
+                    <div className="md:w-48 w-32 cursor-pointer" onClick={() => navigate("/")}>
+                        <img src="/images/funlab_logo_full.png" alt="FUN LAB" className="w-full object-contain" />
                     </div>
 
                     {/* Desktop Menu */}
