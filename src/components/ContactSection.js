@@ -24,15 +24,15 @@ export default function ContactSection() {
 
                     <div className="mb-6">
                         <p className="text-xl font-bold text-white">Ch Madhu Bhushan</p>
-                        <p className="text-green-400">Student Coordinator</p>
+                        <p className="text-green-400">PhD Scholar</p>
                         <p className="text-gray-400 mt-1">+91 78719 47079</p>
                     </div>
 
                     <div className="w-full h-[1px] bg-gray-700 my-4" />
 
                     <div>
-                        <p className="text-xl font-bold text-white">Fazal Shaik</p>
-                        <p className="text-green-400">Team Lead / Researcher</p>
+                        <p className="text-xl font-bold text-white">Ch Madhu Bhushan</p>
+                        <p className="text-green-400">Phd Scholar</p>
                         <a href="mailto:edgeaisrm@srmap.edu.in" className="text-gray-400 hover:text-white transition-colors block">edgeaisrm@srmap.edu.in</a>
                     </div>
                 </div>

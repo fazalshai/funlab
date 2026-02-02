@@ -7,16 +7,14 @@ export default function Hero() {
             {/* Background Glow */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/20 rounded-full blur-[120px] -z-10" />
 
-            <motion.h1
+            <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
-                className="text-6xl sm:text-8xl md:text-9xl font-extrabold mb-6 tracking-tight"
+                className="mb-8 w-full max-w-4xl"
             >
-                <span className="bg-clip-text text-transparent bg-gradient-to-br from-white via-gray-200 to-gray-500">
-                    FUN LAB
-                </span>
-            </motion.h1>
+                <img src="/images/funlab_logo_full.png" alt="FUN LAB" className="w-full h-auto object-contain drop-shadow-2xl" />
+            </motion.div>
 
             <motion.p
                 initial={{ opacity: 0, y: 20 }}
