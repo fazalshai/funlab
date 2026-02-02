@@ -26,14 +26,6 @@ export default function ContactSection() {
                         <p className="text-green-400">PhD Scholar</p>
                         <a href="mailto:edgeaisrm@srmap.edu.in" className="text-gray-400 hover:text-white transition-colors block">edgeaisrm@srmap.edu.in</a>
                     </div>
-
-                    <div className="w-full h-[1px] bg-gray-700 my-4" />
-
-                    <div>
-                        <p className="text-xl font-bold text-white">Fazal Shaik</p>
-                        <p className="text-green-400">Team Lead / Researcher</p>
-                        <a href="mailto:edgeaisrm@srmap.edu.in" className="text-gray-400 hover:text-white transition-colors block">edgeaisrm@srmap.edu.in</a>
-                    </div>
                 </div>
             </motion.div>
         </section>
