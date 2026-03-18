@@ -443,7 +443,9 @@ export default function Admin() {
         <div className="login-wrap" style={{ fontFamily: "'Inter',sans-serif" }}>
           <form onSubmit={handleLogin} className="login-card">
             <div style={{ textAlign: "center", marginBottom: 24 }}>
-              <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg,#a855f7,#06b6d4)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, margin: "0 auto 16px" }}>🔬</div>
+              <div style={{ width: 64, height: 64, margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <img src="/images/funlab_logo_full.png" alt="FUN LAB" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+              </div>
               <h1 className="login-title">FUN LAB</h1>
               <p className="login-sub">Admin Portal · Secured Access</p>
             </div>
@@ -472,7 +474,9 @@ export default function Admin() {
           <header className="admin-header">
             <div className="admin-header-inner">
               <div className="admin-logo">
-                <div className="admin-logo-icon">🔬</div>
+                <div style={{ width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <img src="/images/funlab_logo_full.png" alt="FUN LAB" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+                </div>
                 <span>FUN LAB</span>
                 <span style={{ color: "var(--text-muted)", fontWeight: 400, fontSize: 13 }}>/ Admin</span>
               </div>
