@@ -7,9 +7,9 @@ function getTodayIST() {
   const now = new Date();
   const ist = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
   const y = ist.getUTCFullYear();
-  const m = String(ist.getUTCMonth() + 1).padStart(2, "0");
-  const d = String(ist.getUTCDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
+  const m = ist.getUTCMonth() + 1; // Unpadded to match live DB format
+  const d = ist.getUTCDate();      // Unpadded to match live DB format
+  return `${y}-${m}-${d}`;         // e.g. "2026-3-18"
 }
 
 function getISTClock() {
