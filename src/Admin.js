@@ -491,6 +491,16 @@ export default function Admin() {
                     catch { alert("Error sending command"); }
                   }
                 }}>🔓 Unlock</button>
+                <button className="btn" style={{ background: "rgba(245,158,11,0.12)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.3)" }}
+                  onClick={async () => {
+                    if (window.confirm("⚠️ This will DELETE all logs older than the current month (March 2026). This cannot be undone. Continue?")) {
+                      try {
+                        const res = await axios.delete(`${BASE_URL}/admin/cleanup-old-logs`);
+                        alert(res.data.message);
+                        fetchAll();
+                      } catch { alert("❌ Cleanup failed"); }
+                    }
+                  }}>🗑 Clear Old Data</button>
                 <button className="btn btn-ghost" onClick={() => setIsAuthenticated(false)}>Logout</button>
               </div>
             </div>
