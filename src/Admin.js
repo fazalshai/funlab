@@ -1,180 +1,421 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import config from "./data/config";
+
+// ─── IST Date Helper ─────────────────────────────────────────────────────────
+function getTodayIST() {
+  const now = new Date();
+  const ist = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
+  const y = ist.getUTCFullYear();
+  const m = String(ist.getUTCMonth() + 1).padStart(2, "0");
+  const d = String(ist.getUTCDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function getISTClock() {
+  const now = new Date();
+  const ist = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
+  const h = String(ist.getUTCHours()).padStart(2, "0");
+  const m = String(ist.getUTCMinutes()).padStart(2, "0");
+  const s = String(ist.getUTCSeconds()).padStart(2, "0");
+  const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+  const day = days[ist.getUTCDay()];
+  return { time: `${h}:${m}:${s}`, day };
+}
+
+// ─── Styles ───────────────────────────────────────────────────────────────────
+const styles = `
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #030712;
+    --bg2: #0a0f1e;
+    --glass: rgba(255,255,255,0.03);
+    --glass-border: rgba(255,255,255,0.08);
+    --neon-purple: #a855f7;
+    --neon-cyan: #06b6d4;
+    --neon-green: #10b981;
+    --neon-red: #f43f5e;
+    --neon-amber: #f59e0b;
+    --text: #f1f5f9;
+    --text-muted: #64748b;
+    --row-hover: rgba(168,85,247,0.06);
+  }
+
+  .admin-root {
+    min-height: 100vh;
+    background: var(--bg);
+    font-family: 'Inter', sans-serif;
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* Animated background mesh */
+  .admin-root::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% -20%, rgba(168,85,247,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 100%, rgba(6,182,212,0.10) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, rgba(16,185,129,0.04) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .admin-content { position: relative; z-index: 1; }
+
+  /* ── Header ── */
+  .admin-header {
+    border-bottom: 1px solid var(--glass-border);
+    background: rgba(3,7,18,0.8);
+    backdrop-filter: blur(20px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 0 32px;
+  }
+  .admin-header-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    gap: 24px;
+  }
+  .admin-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: -0.5px;
+  }
+  .admin-logo-icon {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--neon-purple), var(--neon-cyan));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .admin-logo span { background: linear-gradient(135deg, var(--neon-purple), var(--neon-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+  .admin-clock {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--neon-cyan);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(6,182,212,0.2);
+    padding: 6px 14px;
+    border-radius: 8px;
+    background: rgba(6,182,212,0.05);
+  }
+  .clock-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--neon-green); animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.8)} }
+
+  .admin-header-actions { display: flex; align-items: center; gap: 10px; }
+
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; white-space: nowrap; }
+  .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--glass-border); }
+  .btn-ghost:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+  .btn-danger { background: rgba(244,63,94,0.1); color: var(--neon-red); border: 1px solid rgba(244,63,94,0.25); }
+  .btn-danger:hover { background: rgba(244,63,94,0.2); box-shadow: 0 0 20px rgba(244,63,94,0.2); }
+  .btn-primary { background: linear-gradient(135deg, var(--neon-purple), #7c3aed); color: white; }
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 8px 20px rgba(168,85,247,0.3); }
+  .btn-success { background: rgba(16,185,129,0.1); color: var(--neon-green); border: 1px solid rgba(16,185,129,0.25); }
+  .btn-success:hover { background: rgba(16,185,129,0.2); }
+  .btn-amber { background: rgba(245,158,11,0.1); color: var(--neon-amber); border: 1px solid rgba(245,158,11,0.25); }
+  .btn-amber:hover { background: rgba(245,158,11,0.2); }
+
+  /* ── Main container ── */
+  .admin-main { max-width: 1400px; margin: 0 auto; padding: 32px; }
+
+  /* ── Stats row ── */
+  .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .stat-card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.3s;
+    backdrop-filter: blur(10px);
+  }
+  .stat-card:hover { border-color: rgba(255,255,255,0.15); transform: translateY(-2px); }
+  .stat-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .stat-icon.purple { background: rgba(168,85,247,0.15); }
+  .stat-icon.cyan { background: rgba(6,182,212,0.15); }
+  .stat-icon.green { background: rgba(16,185,129,0.15); }
+  .stat-icon.amber { background: rgba(245,158,11,0.15); }
+  .stat-info { flex: 1; }
+  .stat-value { font-size: 24px; font-weight: 800; line-height: 1; }
+  .stat-value.purple { color: var(--neon-purple); }
+  .stat-value.cyan { color: var(--neon-cyan); }
+  .stat-value.green { color: var(--neon-green); }
+  .stat-value.amber { color: var(--neon-amber); }
+  .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 24px;
+    backdrop-filter: blur(10px);
+    transition: border-color 0.3s;
+    margin-bottom: 24px;
+  }
+  .card:hover { border-color: rgba(255,255,255,0.12); }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; gap: 12px; flex-wrap: wrap; }
+  .card-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .card-title-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* ── Form grid ── */
+  .forms-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px; margin-bottom: 24px; }
+  .form-group { display: flex; flex-direction: column; gap: 10px; }
+  .input-field {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.2s;
+    outline: none;
+    width: 100%;
+  }
+  .input-field::placeholder { color: var(--text-muted); }
+  .input-field:focus { border-color: var(--neon-purple); background: rgba(168,85,247,0.05); box-shadow: 0 0 0 3px rgba(168,85,247,0.1); }
+  .input-field[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; }
+
+  /* ── Table ── */
+  .table-wrap { overflow-x: auto; border-radius: 12px; }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { background: rgba(255,255,255,0.04); }
+  th { padding: 11px 14px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); text-align: left; border-bottom: 1px solid var(--glass-border); }
+  td { padding: 12px 14px; font-size: 13.5px; border-bottom: 1px solid rgba(255,255,255,0.03); vertical-align: middle; }
+  tbody tr { transition: background 0.15s; animation: fadeIn 0.3s ease; }
+  tbody tr:hover { background: var(--row-hover); }
+  tbody tr:last-child td { border-bottom: none; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.3px;
+  }
+  .badge-in { background: rgba(16,185,129,0.15); color: var(--neon-green); border: 1px solid rgba(16,185,129,0.3); }
+  .badge-out { background: rgba(244,63,94,0.15); color: var(--neon-red); border: 1px solid rgba(244,63,94,0.3); }
+  .badge-dir { background: rgba(168,85,247,0.15); color: var(--neon-purple); border: 1px solid rgba(168,85,247,0.3); }
+
+  .delete-btn { background: none; border: none; color: var(--neon-red); font-size: 13px; cursor: pointer; padding: 4px 8px; border-radius: 6px; transition: all 0.2s; opacity: 0.6; }
+  .delete-btn:hover { opacity: 1; background: rgba(244,63,94,0.1); }
+
+  .mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+
+  .empty-row td { text-align: center; color: var(--text-muted); padding: 40px; font-size: 13px; }
+
+  /* ── Search ── */
+  .search-wrap { position: relative; }
+  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px; }
+  .search-input { padding-left: 36px !important; }
+
+  /* ── Filter row ── */
+  .filter-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+  /* ── Login ── */
+  .login-wrap {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg);
+    position: relative;
+    overflow: hidden;
+  }
+  .login-wrap::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 70% 60% at 30% 20%, rgba(168,85,247,0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 70% 80%, rgba(6,182,212,0.14) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .login-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 24px;
+    padding: 40px;
+    width: 380px;
+    backdrop-filter: blur(20px);
+    position: relative;
+    z-index: 1;
+    animation: slideUp 0.4s ease;
+  }
+  @keyframes slideUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+  .login-title { font-size: 28px; font-weight: 800; text-align: center; margin-bottom: 8px; background: linear-gradient(135deg, var(--neon-purple), var(--neon-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .login-sub { text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 32px; }
+  .login-group { margin-bottom: 16px; }
+  .login-label { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
+  .login-btn { width: 100%; padding: 12px; border-radius: 12px; border: none; background: linear-gradient(135deg, var(--neon-purple), #7c3aed); color: white; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; margin-top: 8px; font-family: inherit; }
+  .login-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(168,85,247,0.4); }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    .admin-header { padding: 0 16px; }
+    .admin-main { padding: 16px; }
+    .admin-clock .clock-day { display: none; }
+    .login-card { width: 90%; padding: 28px; }
+  }
+
+  /* ── Section divider ── */
+  .section-sep { height: 1px; background: linear-gradient(90deg, transparent, var(--glass-border), transparent); margin: 8px 0 24px; }
+
+  /* ── Shimmer on load ── */
+  .shimmer {
+    background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 6px;
+    height: 14px;
+    width: 80%;
+  }
+  @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+`;
+
 export default function Admin() {
   const { BASE_URL } = config;
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [clock, setClock] = useState(getISTClock());
 
   const [id, setId] = useState("");
   const [name, setName] = useState("");
   const [regNo, setRegNo] = useState("");
   const [itemName, setItemName] = useState("");
   const [issuedDate, setIssuedDate] = useState("");
-  const [selectedDate, setSelectedDate] = useState("");
+
+  // Date filter defaults to TODAY (IST)
+  const [selectedDate, setSelectedDate] = useState(getTodayIST());
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [fingerprintLogs, setFingerprintLogs] = useState([]);
   const [borrowedItems, setBorrowedItems] = useState([]);
   const [registeredUsers, setRegisteredUsers] = useState([]);
   const [userMap, setUserMap] = useState({});
+  const [loading, setLoading] = useState(true);
 
-  // Fetch users
-  const fetchUsers = React.useCallback(async () => {
+  // Live clock (IST)
+  useEffect(() => {
+    const t = setInterval(() => setClock(getISTClock()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const fetchUsers = useCallback(async () => {
     try {
       const res = await axios.get(`${BASE_URL}/users`);
       setRegisteredUsers(res.data);
-
-      // Build map for easy lookup
       const map = {};
-      res.data.forEach(u => map[u.id] = u);
+      res.data.forEach((u) => (map[u.id] = u));
       setUserMap(map);
-    } catch (error) {
-      console.error("Error fetching users:", error);
-    }
+    } catch (e) { console.error(e); }
   }, [BASE_URL]);
 
-  // Fetch logs
-  const fetchLogs = React.useCallback(async (date = "") => {
+  const fetchLogs = useCallback(async (date = "") => {
     try {
       const url = date ? `${BASE_URL}/logs?date=${date}` : `${BASE_URL}/logs`;
       const res = await axios.get(url);
       setFingerprintLogs(res.data);
-    } catch (error) {
-      console.error("Error fetching logs:", error);
-    }
+    } catch (e) { console.error(e); }
   }, [BASE_URL]);
 
-  // Fetch items
-  const fetchBorrowedItems = React.useCallback(async () => {
+  const fetchBorrowedItems = useCallback(async () => {
     try {
       const res = await axios.get(`${BASE_URL}/borrowed-items`);
       setBorrowedItems(res.data);
-    } catch (error) {
-      console.error("Error fetching borrowed items:", error);
-    }
+    } catch (e) { console.error(e); }
   }, [BASE_URL]);
 
-  const fetchAll = React.useCallback(() => {
+  const fetchAll = useCallback(() => {
     fetchLogs(selectedDate);
     fetchBorrowedItems();
     fetchUsers();
+    setLoading(false);
   }, [fetchLogs, fetchBorrowedItems, fetchUsers, selectedDate]);
 
   useEffect(() => {
     if (isAuthenticated) {
+      setLoading(true);
       fetchAll();
-      const interval = setInterval(fetchAll, 10000);
-      return () => clearInterval(interval);
+      const iv = setInterval(fetchAll, 10000);
+      return () => clearInterval(iv);
     }
   }, [isAuthenticated, fetchAll]);
 
-  // Auto-fill name/regNo from map
   useEffect(() => {
-    if (userMap[id]) {
-      setName(userMap[id].name);
-      setRegNo(userMap[id].regNo);
-    }
+    if (userMap[id]) { setName(userMap[id].name); setRegNo(userMap[id].regNo || ""); }
   }, [id, userMap]);
 
   const handleLogin = (e) => {
     e.preventDefault();
-    if (username === "funlab" && password === "JC@bio") {
-      setIsAuthenticated(true);
-    } else {
-      alert("❌ Invalid credentials");
-    }
+    if (username === "funlab" && password === "JC@bio") setIsAuthenticated(true);
+    else alert("❌ Invalid credentials");
   };
 
   const handleSaveUser = async () => {
-    if (!id || !name) {
-      alert("⚠️ Fill both ID and Name");
-      return;
-    }
+    if (!id || !name) return alert("⚠️ Fill both ID and Name");
     try {
       await axios.post(`${BASE_URL}/save-user`, { id, name, regNo });
-      alert("✅ User saved");
-      setId("");
-      setName("");
-      setRegNo("");
+      setId(""); setName(""); setRegNo("");
       fetchAll();
-    } catch (err) {
-      console.error(err);
-      alert("❌ Error saving user");
-    }
+    } catch { alert("❌ Error saving user"); }
   };
 
   const handleAddItem = async () => {
-    if (!name || !regNo || !itemName || !issuedDate) {
-      alert("⚠️ Fill all item fields");
-      return;
-    }
+    if (!name || !regNo || !itemName || !issuedDate) return alert("⚠️ Fill all item fields");
     try {
-      await axios.post(`${BASE_URL}/borrow-item`, {
-        name,
-        regNo,
-        item: itemName,
-        issuedDate,
-      });
-      alert("✅ Item added");
-      setName("");
-      setRegNo("");
-      setItemName("");
-      setIssuedDate("");
+      await axios.post(`${BASE_URL}/borrow-item`, { name, regNo, item: itemName, issuedDate });
+      setName(""); setRegNo(""); setItemName(""); setIssuedDate("");
       fetchAll();
-    } catch (error) {
-      console.error(error);
-      alert("❌ Error adding item");
-    }
+    } catch { alert("❌ Error adding item"); }
   };
 
   const deleteLog = async (id) => {
-    if (window.confirm("Are you sure you want to delete this log?")) {
-      if (id) {
-        try {
-          await axios.delete(`${BASE_URL}/logs/${id}`);
-          fetchAll();
-        } catch (e) {
-          console.error(e);
-          alert("Failed to delete");
-        }
-      } else {
-        alert("Cannot delete: ID missing");
-      }
-    }
+    if (!id) return alert("Cannot delete: ID missing");
+    if (!window.confirm("Delete this log entry?")) return;
+    try { await axios.delete(`${BASE_URL}/logs/${id}`); fetchAll(); }
+    catch { alert("Failed to delete"); }
   };
 
   const deleteItem = async (id) => {
-    if (window.confirm("Are you sure you want to delete this item?")) {
-      if (id) {
-        try {
-          await axios.delete(`${BASE_URL}/borrowed-items/${id}`);
-          fetchAll();
-        } catch (e) { console.error(e); alert("Failed to delete"); }
-      } else {
-        alert("Cannot delete: ID missing");
-      }
-    }
+    if (!id) return alert("Cannot delete: ID missing");
+    if (!window.confirm("Delete this borrowed item?")) return;
+    try { await axios.delete(`${BASE_URL}/borrowed-items/${id}`); fetchAll(); }
+    catch { alert("Failed to delete"); }
   };
 
   const downloadCSV = () => {
-    if (fingerprintLogs.length === 0) {
-      alert("⚠️ No data to download");
-      return;
-    }
-
+    if (!fingerprintLogs.length) return alert("⚠️ No data to download");
     const headers = ["#", "ID", "Name", "Date", "Time", "Direction"];
     const rows = fingerprintLogs.map((log, i) => [
-      i + 1,
-      log.id,
+      i + 1, log.id,
       userMap[log.id]?.name || log.name || "Unknown",
-      log.date,
-      log.time,
-      log.direction,
+      log.date, log.time, log.direction,
     ]);
-    const csv = [headers, ...rows].map((row) => row.join(",")).join("\n");
-
+    const csv = [headers, ...rows].map((r) => r.join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
@@ -182,173 +423,275 @@ export default function Admin() {
     link.click();
   };
 
+  // Filtered logs (by search query)
+  const filteredLogs = fingerprintLogs.filter((log) => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    const uname = (userMap[log.id]?.name || log.name || "").toLowerCase();
+    return uname.includes(q) || String(log.id).includes(q);
+  });
+
+  // Stats
+  const todayIST = getTodayIST();
+  const todayCount = fingerprintLogs.filter((l) => l.date === todayIST).length;
+
+  // ─── Login Screen ─────────────────────────────────────────────────────────
   if (!isAuthenticated)
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white font-sans">
-        <form onSubmit={handleLogin} className="bg-gray-800 p-8 rounded-lg shadow-lg w-80 border border-gray-700">
-          <h2 className="text-2xl font-bold text-center mb-6 text-blue-400">Admin Login</h2>
-          <input type="text" placeholder="Username" className="w-full mb-4 p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500"
-            value={username} onChange={(e) => setUsername(e.target.value)} />
-          <input type="password" placeholder="Password" className="w-full mb-4 p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500"
-            value={password} onChange={(e) => setPassword(e.target.value)} />
-          <button type="submit" className="w-full bg-blue-600 p-2 rounded hover:bg-blue-700 font-semibold transition-colors">
-            Login
-          </button>
-        </form>
-      </div>
+      <>
+        <style>{styles}</style>
+        <div className="login-wrap" style={{ fontFamily: "'Inter',sans-serif" }}>
+          <form onSubmit={handleLogin} className="login-card">
+            <div style={{ textAlign: "center", marginBottom: 24 }}>
+              <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg,#a855f7,#06b6d4)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, margin: "0 auto 16px" }}>🔬</div>
+              <h1 className="login-title">FUN LAB</h1>
+              <p className="login-sub">Admin Portal · Secured Access</p>
+            </div>
+            <div className="login-group">
+              <label className="login-label">Username</label>
+              <input className="input-field" placeholder="Enter username" value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" />
+            </div>
+            <div className="login-group">
+              <label className="login-label">Password</label>
+              <input type="password" className="input-field" placeholder="Enter password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
+            </div>
+            <button type="submit" className="login-btn">Sign In →</button>
+          </form>
+        </div>
+      </>
     );
 
+  // ─── Main Dashboard ───────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6 font-sans">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-blue-400">Admin Panel - FUN LAB</h1>
-          <div className="flex gap-4">
-            <button className="bg-red-600 px-4 py-2 rounded text-white font-bold hover:bg-red-700 transition"
-              onClick={async () => {
-                if (window.confirm("Remote Unlock Door?")) {
-                  try {
-                    await axios.post(`${BASE_URL}/admin/unlock`);
-                    alert("🔓 Unlock command sent!");
-                  } catch (e) { alert("Error sending command"); }
-                }
-              }}>
-              🔓 Remote Unlock
-            </button>
-            <button className="text-sm text-gray-400 hover:text-white" onClick={() => setIsAuthenticated(false)}>Logout</button>
-          </div>
-        </div>
+    <>
+      <style>{styles}</style>
+      <div className="admin-root">
+        <div className="admin-content">
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-          {/* === Register User === */}
-          <div className="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700">
-            <h2 className="text-xl mb-4 font-semibold text-green-400 border-b border-gray-700 pb-2">Register Fingerprint User</h2>
-            <div className="grid grid-cols-1 gap-3">
-              <input placeholder="Fingerprint ID" className="p-2 rounded bg-gray-700 border border-gray-600 text-white"
-                value={id} onChange={(e) => setId(e.target.value)} />
-              <input placeholder="Name" className="p-2 rounded bg-gray-700 border border-gray-600 text-white"
-                value={name} onChange={(e) => setName(e.target.value)} />
-              <input placeholder="Reg No (optional)" className="p-2 rounded bg-gray-700 border border-gray-600 text-white"
-                value={regNo} onChange={(e) => setRegNo(e.target.value)} />
-              <button className="bg-green-600 hover:bg-green-700 p-2 rounded font-semibold transition-colors mt-2" onClick={handleSaveUser}>
-                Save User
-              </button>
+          {/* ── Header ── */}
+          <header className="admin-header">
+            <div className="admin-header-inner">
+              <div className="admin-logo">
+                <div className="admin-logo-icon">🔬</div>
+                <span>FUN LAB</span>
+                <span style={{ color: "var(--text-muted)", fontWeight: 400, fontSize: 13 }}>/ Admin</span>
+              </div>
+
+              <div className="admin-clock">
+                <div className="clock-dot" />
+                <span className="clock-day" style={{ color: "var(--text-muted)", fontSize: 11 }}>{clock.day}</span>
+                <span>{clock.time}</span>
+                <span style={{ color: "var(--text-muted)", fontSize: 11 }}>IST</span>
+              </div>
+
+              <div className="admin-header-actions">
+                <button className="btn btn-danger" onClick={async () => {
+                  if (window.confirm("Send remote unlock command?")) {
+                    try { await axios.post(`${BASE_URL}/admin/unlock`); alert("🔓 Unlock command sent!"); }
+                    catch { alert("Error sending command"); }
+                  }
+                }}>🔓 Unlock</button>
+                <button className="btn btn-ghost" onClick={() => setIsAuthenticated(false)}>Logout</button>
+              </div>
             </div>
-          </div>
+          </header>
 
-          <div className="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700">
-            <h2 className="text-xl mb-4 font-semibold text-blue-400 border-b border-gray-700 pb-2">Add Borrowed Item</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <input placeholder="Name" className="p-2 rounded bg-gray-700 border border-gray-600 text-white sm:col-span-2"
-                value={name} onChange={(e) => setName(e.target.value)} />
-              <input placeholder="Reg No" className="p-2 rounded bg-gray-700 border border-gray-600 text-white"
-                value={regNo} onChange={(e) => setRegNo(e.target.value)} />
-              <input placeholder="Item Name" className="p-2 rounded bg-gray-700 border border-gray-600 text-white"
-                value={itemName} onChange={(e) => setItemName(e.target.value)} />
-              <input type="date" className="p-2 rounded bg-gray-700 border border-gray-600 text-white sm:col-span-2"
-                value={issuedDate} onChange={(e) => setIssuedDate(e.target.value)} />
-              <button className="bg-blue-600 hover:bg-blue-700 p-2 rounded font-semibold transition-colors mt-2 sm:col-span-2" onClick={handleAddItem}>
-                Add Item
-              </button>
+          <main className="admin-main">
+
+            {/* ── Stats ── */}
+            <div className="stats-row">
+              <div className="stat-card">
+                <div className="stat-icon purple">👁️</div>
+                <div className="stat-info">
+                  <div className="stat-value purple">{loading ? "—" : todayCount}</div>
+                  <div className="stat-label">Today's Entries</div>
+                </div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-icon cyan">📊</div>
+                <div className="stat-info">
+                  <div className="stat-value cyan">{loading ? "—" : fingerprintLogs.length}</div>
+                  <div className="stat-label">Filtered Logs</div>
+                </div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-icon green">👤</div>
+                <div className="stat-info">
+                  <div className="stat-value green">{loading ? "—" : registeredUsers.length}</div>
+                  <div className="stat-label">Registered Users</div>
+                </div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-icon amber">📦</div>
+                <div className="stat-info">
+                  <div className="stat-value amber">{loading ? "—" : borrowedItems.length}</div>
+                  <div className="stat-label">Borrowed Items</div>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
 
-        {/* === Registered Users Table === */}
-        <div className="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 mb-12">
-          <h2 className="text-xl font-semibold mb-6 text-green-400">Registered Users</h2>
-          <div className="max-h-60 overflow-y-auto">
-            <table className="w-full text-left bg-gray-900 rounded-lg overflow-hidden">
-              <thead className="sticky top-0 z-10">
-                <tr className="bg-gray-700 text-gray-300 uppercase text-xs tracking-wider">
-                  <th className="p-3">ID</th><th className="p-3">Name</th><th className="p-3">Reg No</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-800">
-                {registeredUsers.length === 0 ? (
-                  <tr><td colSpan="3" className="p-4 text-center text-gray-500">No users registered</td></tr>
-                ) : (
-                  registeredUsers.map((u, i) => (
-                    <tr key={i} className="hover:bg-gray-800/50 transition-colors">
-                      <td className="p-3 text-white font-mono">{u.id}</td>
-                      <td className="p-3 font-medium text-white">{u.name}</td>
-                      <td className="p-3 text-gray-400">{u.regNo || "-"}</td>
+            {/* ── Forms ── */}
+            <div className="forms-grid">
+              {/* Register User */}
+              <div className="card">
+                <div className="card-header">
+                  <h2 className="card-title">
+                    <div className="card-title-dot" style={{ background: "var(--neon-green)" }} />
+                    Register User
+                  </h2>
+                </div>
+                <div className="form-group">
+                  <input className="input-field" placeholder="Fingerprint ID" value={id} onChange={(e) => setId(e.target.value)} />
+                  <input className="input-field" placeholder="Full Name" value={name} onChange={(e) => setName(e.target.value)} />
+                  <input className="input-field" placeholder="Reg No (optional)" value={regNo} onChange={(e) => setRegNo(e.target.value)} />
+                  <button className="btn btn-success" style={{ width: "100%", justifyContent: "center", padding: "10px 16px" }} onClick={handleSaveUser}>
+                    ＋ Save User
+                  </button>
+                </div>
+              </div>
+
+              {/* Borrow Item */}
+              <div className="card">
+                <div className="card-header">
+                  <h2 className="card-title">
+                    <div className="card-title-dot" style={{ background: "var(--neon-cyan)" }} />
+                    Issue Item
+                  </h2>
+                </div>
+                <div className="form-group">
+                  <input className="input-field" placeholder="Student Name" value={name} onChange={(e) => setName(e.target.value)} />
+                  <input className="input-field" placeholder="Reg No" value={regNo} onChange={(e) => setRegNo(e.target.value)} />
+                  <input className="input-field" placeholder="Item Name" value={itemName} onChange={(e) => setItemName(e.target.value)} />
+                  <input type="date" className="input-field" value={issuedDate} onChange={(e) => setIssuedDate(e.target.value)} />
+                  <button className="btn btn-primary" style={{ width: "100%", justifyContent: "center", padding: "10px 16px" }} onClick={handleAddItem}>
+                    ＋ Add Item
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* ── Registered Users ── */}
+            <div className="card">
+              <div className="card-header">
+                <h2 className="card-title">
+                  <div className="card-title-dot" style={{ background: "var(--neon-green)" }} />
+                  Registered Users
+                  <span style={{ background: "rgba(16,185,129,0.15)", color: "var(--neon-green)", padding: "2px 8px", borderRadius: 6, fontSize: 11, fontWeight: 700 }}>{registeredUsers.length}</span>
+                </h2>
+              </div>
+              <div className="table-wrap" style={{ maxHeight: 240, overflowY: "auto" }}>
+                <table>
+                  <thead>
+                    <tr><th>ID</th><th>Name</th><th>Reg No</th></tr>
+                  </thead>
+                  <tbody>
+                    {registeredUsers.length === 0
+                      ? <tr className="empty-row"><td colSpan="3">No users registered yet</td></tr>
+                      : registeredUsers.map((u, i) => (
+                        <tr key={i}>
+                          <td><span className="mono" style={{ color: "var(--neon-cyan)" }}>{u.id}</span></td>
+                          <td style={{ fontWeight: 500 }}>{u.name}</td>
+                          <td style={{ color: "var(--text-muted)" }}>{u.regNo || "—"}</td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* ── Fingerprint Logs ── */}
+            <div className="card">
+              <div className="card-header">
+                <h2 className="card-title">
+                  <div className="card-title-dot" style={{ background: "var(--neon-purple)" }} />
+                  Fingerprint Logs
+                  <span style={{ background: "rgba(168,85,247,0.15)", color: "var(--neon-purple)", padding: "2px 8px", borderRadius: 6, fontSize: 11, fontWeight: 700 }}>{filteredLogs.length}</span>
+                </h2>
+                <div className="filter-row">
+                  <div className="search-wrap">
+                    <span className="search-icon">🔍</span>
+                    <input className="input-field search-input" style={{ width: 180 }} placeholder="Search name / ID…" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                  </div>
+                  <input type="date" className="input-field" style={{ width: 160 }} value={selectedDate} onChange={(e) => { setSelectedDate(e.target.value); fetchLogs(e.target.value); }} />
+                  <button className="btn btn-amber" onClick={downloadCSV}>⬇ CSV</button>
+                </div>
+              </div>
+
+              <div className="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>#</th><th>ID</th><th>Name</th><th>Date</th><th>Time</th><th>Direction</th><th>Action</th>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* === Fingerprint Logs === */}
-        <div className="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 mb-12">
-          <div className="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4">
-            <div className="flex items-center gap-4">
-              <h2 className="text-xl font-semibold text-purple-400">Fingerprint Logs</h2>
-              <input type="date" className="p-2 rounded bg-gray-700 border border-gray-600 text-white"
-                value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
+                  </thead>
+                  <tbody>
+                    {loading
+                      ? Array.from({ length: 5 }).map((_, i) => (
+                        <tr key={i}><td colSpan={7}><div className="shimmer" style={{ width: "100%" }} /></td></tr>
+                      ))
+                      : filteredLogs.length === 0
+                        ? <tr className="empty-row"><td colSpan="7">No logs found for this date / filter</td></tr>
+                        : filteredLogs.map((log, i) => (
+                          <tr key={i}>
+                            <td style={{ color: "var(--text-muted)" }}>{i + 1}</td>
+                            <td><span className="mono" style={{ color: "var(--neon-cyan)" }}>{log.id}</span></td>
+                            <td style={{ fontWeight: 500 }}>{userMap[log.id]?.name || log.name || "Unknown"}</td>
+                            <td style={{ color: "var(--text-muted)" }} className="mono">{log.date}</td>
+                            <td style={{ color: "var(--text-muted)" }} className="mono">{log.time}</td>
+                            <td>
+                              {log.direction === "In"
+                                ? <span className="badge badge-in">↑ IN</span>
+                                : log.direction === "Out"
+                                  ? <span className="badge badge-out">↓ OUT</span>
+                                  : <span className="badge badge-dir">{log.direction}</span>}
+                            </td>
+                            <td>
+                              <button className="delete-btn" onClick={() => deleteLog(log._id)}>✕ Delete</button>
+                            </td>
+                          </tr>
+                        ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-            <button className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-500 transition-colors font-semibold"
-              onClick={downloadCSV}>⬇ Download CSV</button>
-          </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left bg-gray-900 rounded-lg overflow-hidden">
-              <thead>
-                <tr className="bg-gray-700 text-gray-300 uppercase text-xs tracking-wider">
-                  <th className="p-3">#</th><th className="p-3">ID</th><th className="p-3">Name</th><th className="p-3">Date</th>
-                  <th className="p-3">Time</th><th className="p-3">Direction</th><th className="p-3">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-800">
-                {[...fingerprintLogs].reverse().map((log, i) => (
-                  <tr key={i} className="hover:bg-gray-800/50 transition-colors">
-                    <td className="p-3 text-gray-400">{i + 1}</td>
-                    <td className="p-3">{log.id}</td>
-                    <td className="p-3 font-medium">{userMap[log.id]?.name || log.name || "Unknown"}</td>
-                    <td className="p-3 text-gray-400">{log.date}</td>
-                    <td className="p-3 text-gray-400">{log.time}</td>
-                    <td className="p-3">
-                      <span className={`px-2 py-1 rounded text-xs ${log.direction === 'In' ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'}`}>
-                        {log.direction}
-                      </span>
-                    </td>
-                    <td className="p-3"><button className="text-red-400 hover:text-red-300 transition-colors" onClick={() => deleteLog(log._id)}>Delete</button></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+            {/* ── Borrowed Items ── */}
+            <div className="card">
+              <div className="card-header">
+                <h2 className="card-title">
+                  <div className="card-title-dot" style={{ background: "var(--neon-amber)" }} />
+                  Borrowed Items
+                  <span style={{ background: "rgba(245,158,11,0.15)", color: "var(--neon-amber)", padding: "2px 8px", borderRadius: 6, fontSize: 11, fontWeight: 700 }}>{borrowedItems.length}</span>
+                </h2>
+              </div>
+              <div className="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th>#</th><th>Name</th><th>Reg No</th><th>Item</th><th>Issued Date</th><th>Action</th></tr>
+                  </thead>
+                  <tbody>
+                    {borrowedItems.length === 0
+                      ? <tr className="empty-row"><td colSpan="6">No items currently borrowed</td></tr>
+                      : borrowedItems.map((item, i) => (
+                        <tr key={i}>
+                          <td style={{ color: "var(--text-muted)" }}>{i + 1}</td>
+                          <td style={{ fontWeight: 500 }}>{item.name}</td>
+                          <td style={{ color: "var(--text-muted)" }} className="mono">{item.regNo}</td>
+                          <td style={{ color: "var(--neon-cyan)" }}>{item.item}</td>
+                          <td style={{ color: "var(--text-muted)" }} className="mono">{item.issuedDate}</td>
+                          <td>
+                            <button className="delete-btn" onClick={() => deleteItem(item._id)}>✕ Delete</button>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
 
-        {/* === Borrowed Items === */}
-        <div className="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700">
-          <h2 className="text-xl font-semibold mb-6 text-orange-400">Borrowed Items</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left bg-gray-900 rounded-lg overflow-hidden">
-              <thead>
-                <tr className="bg-gray-700 text-gray-300 uppercase text-xs tracking-wider">
-                  <th className="p-3">#</th><th className="p-3">Name</th><th className="p-3">Reg No</th>
-                  <th className="p-3">Item</th><th className="p-3">Issued Date</th><th className="p-3">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-800">
-                {borrowedItems.map((item, i) => (
-                  <tr key={i} className="hover:bg-gray-800/50 transition-colors">
-                    <td className="p-3 text-gray-400">{i + 1}</td>
-                    <td className="p-3 font-medium">{item.name}</td>
-                    <td className="p-3 text-gray-400">{item.regNo}</td>
-                    <td className="p-3 text-blue-300">{item.item}</td>
-                    <td className="p-3 text-gray-400">{item.issuedDate}</td>
-                    <td className="p-3"><button className="text-red-400 hover:text-red-300 transition-colors" onClick={() => deleteItem(item._id)}>Delete</button></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          </main>
         </div>
       </div>
-    </div>
+    </>
   );
 }
