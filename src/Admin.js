@@ -433,7 +433,15 @@ export default function Admin() {
 
   // Stats
   const todayIST = getTodayIST();
-  const todayCount = fingerprintLogs.filter((l) => l.date === todayIST).length;
+  
+  // Create padded version of today's date for matching
+  const [y, m, d] = todayIST.split("-");
+  const todayPadded = `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+
+  // Count both padded and unpadded versions so old DB data and new DB data are both counted
+  const todayCount = fingerprintLogs.filter(
+    (l) => l.date === todayIST || l.date === todayPadded
+  ).length;
 
   // ─── Login Screen ─────────────────────────────────────────────────────────
   if (!isAuthenticated)
