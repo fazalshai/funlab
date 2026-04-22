@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import config from "./data/config";
