@@ -500,8 +500,7 @@ export default function BiometricAttendance() {
                 <span>{clock.time}</span>
                 <span style={{ color: "var(--text-muted)", fontSize: 11 }}>IST</span>
               </div>
-
-                  }}>🗑 Clear Old Data</button>
+              <div className="admin-header-actions">
                 <button className="btn btn-ghost" onClick={() => setIsAuthenticated(false)}>Logout</button>
               </div>
             </div>
