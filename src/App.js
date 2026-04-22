@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Admin from "./Admin";
+import BiometricAttendance from "./BiometricAttendance";
 import Alumni from "./components/Alumni";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
@@ -37,6 +38,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<MainApp />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/biometric_attendance" element={<BiometricAttendance />} />
         <Route path="/alumni" element={<Alumni />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-and-conditions" element={<Terms />} />

@@ -294,7 +294,7 @@ const styles = `
   @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 `;
 
-export default function Admin() {
+export default function BiometricAttendance() {
   const { BASE_URL } = config;
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -371,7 +371,7 @@ export default function Admin() {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    if (username === "funlab" && password === "JC@bio123") setIsAuthenticated(true);
+    if (username === "attendance" && password === "JC@bio") setIsAuthenticated(true);
     else alert("❌ Invalid credentials");
   };
 
@@ -428,8 +428,8 @@ export default function Admin() {
     const uname = (userMap[log.id]?.name || log.name || "").toLowerCase();
     const isFunlab = uname.includes("funlab") || (log.direction || "").toUpperCase() === "FUN_LAB";
     
-    // Admin page currently ONLY shows funlab entries
-    if (!isFunlab) return false;
+    // Biometric Attendance page skips funlab entries
+    if (isFunlab) return false;
 
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
@@ -460,7 +460,7 @@ export default function Admin() {
                 <img src="/images/funlab_logo_full.png" alt="FUN LAB" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
               </div>
               <h1 className="login-title">FUN LAB</h1>
-              <p className="login-sub">Admin Portal · Secured Access</p>
+              <p className="login-sub">Attendance Portal · Secured Access</p>
             </div>
             <div className="login-group">
               <label className="login-label">Username</label>
@@ -491,7 +491,7 @@ export default function Admin() {
                   <img src="/images/funlab_logo_full.png" alt="FUN LAB" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
                 </div>
                 <span>FUN LAB</span>
-                <span style={{ color: "var(--text-muted)", fontWeight: 400, fontSize: 13 }}>/ Admin</span>
+                <span style={{ color: "var(--text-muted)", fontWeight: 400, fontSize: 13 }}>/ Attendance</span>
               </div>
 
               <div className="admin-clock">
@@ -501,22 +501,6 @@ export default function Admin() {
                 <span style={{ color: "var(--text-muted)", fontSize: 11 }}>IST</span>
               </div>
 
-              <div className="admin-header-actions">
-                <button className="btn btn-danger" onClick={async () => {
-                  if (window.confirm("Send remote unlock command?")) {
-                    try { await axios.post(`${BASE_URL}/admin/unlock`); alert("🔓 Unlock command sent!"); }
-                    catch { alert("Error sending command"); }
-                  }
-                }}>🔓 Unlock</button>
-                <button className="btn" style={{ background: "rgba(245,158,11,0.12)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.3)" }}
-                  onClick={async () => {
-                    if (window.confirm("⚠️ This will DELETE all logs older than the current month (March 2026). This cannot be undone. Continue?")) {
-                      try {
-                        const res = await axios.delete(`${BASE_URL}/admin/cleanup-old-logs`);
-                        alert(res.data.message);
-                        fetchAll();
-                      } catch { alert("❌ Cleanup failed"); }
-                    }
                   }}>🗑 Clear Old Data</button>
                 <button className="btn btn-ghost" onClick={() => setIsAuthenticated(false)}>Logout</button>
               </div>
@@ -557,74 +541,7 @@ export default function Admin() {
               </div>
             </div>
 
-            {/* ── Forms ── */}
-            <div className="forms-grid">
-              {/* Register User */}
-              <div className="card">
-                <div className="card-header">
-                  <h2 className="card-title">
-                    <div className="card-title-dot" style={{ background: "var(--neon-green)" }} />
-                    Register User
-                  </h2>
-                </div>
-                <div className="form-group">
-                  <input className="input-field" placeholder="Fingerprint ID" value={id} onChange={(e) => setId(e.target.value)} />
-                  <input className="input-field" placeholder="Full Name" value={name} onChange={(e) => setName(e.target.value)} />
-                  <input className="input-field" placeholder="Reg No (optional)" value={regNo} onChange={(e) => setRegNo(e.target.value)} />
-                  <button className="btn btn-success" style={{ width: "100%", justifyContent: "center", padding: "10px 16px" }} onClick={handleSaveUser}>
-                    ＋ Save User
-                  </button>
-                </div>
-              </div>
-
-              {/* Borrow Item */}
-              <div className="card">
-                <div className="card-header">
-                  <h2 className="card-title">
-                    <div className="card-title-dot" style={{ background: "var(--neon-cyan)" }} />
-                    Issue Item
-                  </h2>
-                </div>
-                <div className="form-group">
-                  <input className="input-field" placeholder="Student Name" value={name} onChange={(e) => setName(e.target.value)} />
-                  <input className="input-field" placeholder="Reg No" value={regNo} onChange={(e) => setRegNo(e.target.value)} />
-                  <input className="input-field" placeholder="Item Name" value={itemName} onChange={(e) => setItemName(e.target.value)} />
-                  <input type="date" className="input-field" value={issuedDate} onChange={(e) => setIssuedDate(e.target.value)} />
-                  <button className="btn btn-primary" style={{ width: "100%", justifyContent: "center", padding: "10px 16px" }} onClick={handleAddItem}>
-                    ＋ Add Item
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* ── Registered Users ── */}
-            <div className="card">
-              <div className="card-header">
-                <h2 className="card-title">
-                  <div className="card-title-dot" style={{ background: "var(--neon-green)" }} />
-                  Registered Users
-                  <span style={{ background: "rgba(16,185,129,0.15)", color: "var(--neon-green)", padding: "2px 8px", borderRadius: 6, fontSize: 11, fontWeight: 700 }}>{registeredUsers.length}</span>
-                </h2>
-              </div>
-              <div className="table-wrap" style={{ maxHeight: 240, overflowY: "auto" }}>
-                <table>
-                  <thead>
-                    <tr><th>ID</th><th>Name</th><th>Reg No</th></tr>
-                  </thead>
-                  <tbody>
-                    {registeredUsers.length === 0
-                      ? <tr className="empty-row"><td colSpan="3">No users registered yet</td></tr>
-                      : registeredUsers.map((u, i) => (
-                        <tr key={i}>
-                          <td><span className="mono" style={{ color: "var(--neon-cyan)" }}>{u.id}</span></td>
-                          <td style={{ fontWeight: 500 }}>{u.name}</td>
-                          <td style={{ color: "var(--text-muted)" }}>{u.regNo || "—"}</td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            {/* Hidden Forms and Registered Users for Attendance page */}
 
             {/* ── Fingerprint Logs ── */}
             <div className="card">
@@ -682,39 +599,7 @@ export default function Admin() {
               </div>
             </div>
 
-            {/* ── Borrowed Items ── */}
-            <div className="card">
-              <div className="card-header">
-                <h2 className="card-title">
-                  <div className="card-title-dot" style={{ background: "var(--neon-amber)" }} />
-                  Borrowed Items
-                  <span style={{ background: "rgba(245,158,11,0.15)", color: "var(--neon-amber)", padding: "2px 8px", borderRadius: 6, fontSize: 11, fontWeight: 700 }}>{borrowedItems.length}</span>
-                </h2>
-              </div>
-              <div className="table-wrap">
-                <table>
-                  <thead>
-                    <tr><th>#</th><th>Name</th><th>Reg No</th><th>Item</th><th>Issued Date</th><th>Action</th></tr>
-                  </thead>
-                  <tbody>
-                    {borrowedItems.length === 0
-                      ? <tr className="empty-row"><td colSpan="6">No items currently borrowed</td></tr>
-                      : borrowedItems.map((item, i) => (
-                        <tr key={i}>
-                          <td style={{ color: "var(--text-muted)" }}>{i + 1}</td>
-                          <td style={{ fontWeight: 500 }}>{item.name}</td>
-                          <td style={{ color: "var(--text-muted)" }} className="mono">{item.regNo}</td>
-                          <td style={{ color: "var(--neon-cyan)" }}>{item.item}</td>
-                          <td style={{ color: "var(--text-muted)" }} className="mono">{item.issuedDate}</td>
-                          <td>
-                            <button className="delete-btn" onClick={() => deleteItem(item._id)}>✕ Delete</button>
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            {/* Hidden Borrowed Items */}
 
           </main>
         </div>
