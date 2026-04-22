@@ -371,7 +371,7 @@ export default function BiometricAttendance() {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    if (username === "attendance" && password === "JC@bio") setIsAuthenticated(true);
+    if (username === "funlab" && password === "funlab") setIsAuthenticated(true);
     else alert("❌ Invalid credentials");
   };
 
