@@ -521,7 +521,7 @@ export default function BiometricAttendance() {
               <div className="stat-card">
                 <div className="stat-icon cyan">📊</div>
                 <div className="stat-info">
-                  <div className="stat-value cyan">{loading ? "—" : fingerprintLogs.length}</div>
+                  <div className="stat-value cyan">{loading ? "—" : filteredLogs.length}</div>
                   <div className="stat-label">Filtered Logs</div>
                 </div>
               </div>
