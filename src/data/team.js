@@ -70,6 +70,6 @@ export const alumniMembers = [
     {
         name: "Fazal",
         role: "Alumni - Class of 2025",
-        img: "/images/fazal_profile.jpg"
+        img: "/images/fazal.jpg"
     }
 ];
