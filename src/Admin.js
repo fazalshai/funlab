@@ -708,7 +708,7 @@ export default function Admin() {
                 <table>
                   <thead>
                     <tr>
-                      <th>#</th><th>ID</th><th>Name</th><th>Date</th><th>Time</th><th>Direction</th><th>Action</th>
+                      <th>#</th><th>ID</th><th>Name</th><th>Date</th><th>Time</th><th>Direction</th>{adminLevel === "super" && <th>Action</th>}
                     </tr>
                   </thead>
                   <tbody>
@@ -733,7 +733,9 @@ export default function Admin() {
                                   : <span className="badge badge-dir">{log.direction}</span>}
                             </td>
                             <td>
-                              <button className="delete-btn" onClick={() => deleteLog(log._id)}>✕ Delete</button>
+                              {adminLevel === "super" && (
+                                <button className="delete-btn" onClick={() => deleteLog(log._id)}>✕ Delete</button>
+                              )}
                             </td>
                           </tr>
                         ))}
