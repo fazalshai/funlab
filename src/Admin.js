@@ -298,6 +298,7 @@ export default function Admin() {
   const { BASE_URL } = config;
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [adminLevel, setAdminLevel] = useState("user"); // "user" | "super"
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [clock, setClock] = useState(getISTClock());
@@ -373,8 +374,15 @@ export default function Admin() {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    if (username === "funlab" && password === "JC@bio123") setIsAuthenticated(true);
-    else alert("❌ Invalid credentials");
+    if (username === "funlab" && password === "JC@bio123") {
+      setAdminLevel("super");
+      setIsAuthenticated(true);
+    } else if (username === "funlab" && password === "JC@bio") {
+      setAdminLevel("user");
+      setIsAuthenticated(true);
+    } else {
+      alert("❌ Invalid credentials");
+    }
   };
 
   const handleSaveUser = async () => {
@@ -574,7 +582,7 @@ export default function Admin() {
 
             {/* ── Forms ── */}
             <div className="forms-grid">
-              {/* Register User */}
+              {/* Register User — visible to all levels */}
               <div className="card">
                 <div className="card-header">
                   <h2 className="card-title">
@@ -592,7 +600,8 @@ export default function Admin() {
                 </div>
               </div>
 
-              {/* Borrow Item */}
+              {/* Borrow Item — super admin only */}
+              {adminLevel === "super" && (
               <div className="card">
                 <div className="card-header">
                   <h2 className="card-title">
@@ -610,9 +619,11 @@ export default function Admin() {
                   </button>
                 </div>
               </div>
+              )}
             </div>
 
-            {/* ── Delete Fingerprint from Sensor ── */}
+            {/* ── Delete Fingerprint from Sensor — super admin only ── */}
+            {adminLevel === "super" && (
             <div className="card" style={{ borderColor: "rgba(244,63,94,0.2)" }}>
               <div className="card-header">
                 <h2 className="card-title">
@@ -642,8 +653,10 @@ export default function Admin() {
                 )}
               </div>
             </div>
+            )}
 
-            {/* ── Registered Users ── */}
+            {/* ── Registered Users — super admin only ── */}
+            {adminLevel === "super" && (
             <div className="card">
               <div className="card-header">
                 <h2 className="card-title">
@@ -671,6 +684,7 @@ export default function Admin() {
                 </table>
               </div>
             </div>
+            )}
 
             {/* ── Fingerprint Logs ── */}
             <div className="card">
@@ -728,7 +742,8 @@ export default function Admin() {
               </div>
             </div>
 
-            {/* ── Borrowed Items ── */}
+            {/* ── Borrowed Items — super admin only ── */}
+            {adminLevel === "super" && (
             <div className="card">
               <div className="card-header">
                 <h2 className="card-title">
@@ -761,6 +776,7 @@ export default function Admin() {
                 </table>
               </div>
             </div>
+            )}
 
           </main>
         </div>
