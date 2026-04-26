@@ -317,6 +317,8 @@ export default function Admin() {
   const [registeredUsers, setRegisteredUsers] = useState([]);
   const [userMap, setUserMap] = useState({});
   const [loading, setLoading] = useState(true);
+  const [deleteFingerID, setDeleteFingerID] = useState("");
+  const [deleteStatus, setDeleteStatus] = useState("");
 
   // Live clock (IST)
   useEffect(() => {
@@ -405,6 +407,19 @@ export default function Admin() {
     if (!window.confirm("Delete this borrowed item?")) return;
     try { await axios.delete(`${BASE_URL}/borrowed-items/${id}`); fetchAll(); }
     catch { alert("Failed to delete"); }
+  };
+
+  const handleDeleteFingerprint = async () => {
+    const fid = parseInt(deleteFingerID);
+    if (!fid || fid < 1 || fid > 127) return alert("⚠️ Enter a valid fingerprint ID (1-127)");
+    if (!window.confirm(`Delete fingerprint slot ${fid} from the sensor? This cannot be undone.`)) return;
+    try {
+      setDeleteStatus("Queuing...");
+      await axios.post(`${BASE_URL}/admin/delete-fingerprint`, { fingerprintId: fid });
+      setDeleteStatus(`✅ Queued! ESP will delete slot ${fid} within 5 seconds.`);
+      setDeleteFingerID("");
+      setTimeout(() => setDeleteStatus(""), 5000);
+    } catch { setDeleteStatus("❌ Failed to queue delete."); }
   };
 
   const downloadCSV = () => {
@@ -594,6 +609,37 @@ export default function Admin() {
                     ＋ Add Item
                   </button>
                 </div>
+              </div>
+            </div>
+
+            {/* ── Delete Fingerprint from Sensor ── */}
+            <div className="card" style={{ borderColor: "rgba(244,63,94,0.2)" }}>
+              <div className="card-header">
+                <h2 className="card-title">
+                  <div className="card-title-dot" style={{ background: "var(--neon-red)" }} />
+                  Delete Fingerprint from Sensor
+                </h2>
+              </div>
+              <div className="form-group">
+                <input
+                  className="input-field"
+                  placeholder="Fingerprint Slot ID (1–127)"
+                  type="number" min="1" max="127"
+                  value={deleteFingerID}
+                  onChange={(e) => setDeleteFingerID(e.target.value)}
+                />
+                <button
+                  className="btn btn-danger"
+                  style={{ width: "100%", justifyContent: "center", padding: "10px 16px" }}
+                  onClick={handleDeleteFingerprint}
+                >
+                  🗑 Delete from Sensor
+                </button>
+                {deleteStatus && (
+                  <div style={{ fontSize: 13, color: deleteStatus.startsWith("✅") ? "var(--neon-green)" : "var(--neon-red)", marginTop: 4 }}>
+                    {deleteStatus}
+                  </div>
+                )}
               </div>
             </div>
 
